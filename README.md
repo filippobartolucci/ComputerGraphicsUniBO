@@ -15,6 +15,16 @@ Si progetti ed implementi un'applicazione 3D interattiva composta da almeno un o
 - [ ] si ponga attenzione che il tutto sia fruibile anche da un dispositivo mobile (gestione eventi touch);
 - [ ] (opzionale) advanced rendering (da menu' si preveda l'attivazione/disattivazione di almeno una tecnica di resa avanzata come per esempio: ombre, trasparenze, riflessioni, bump-mapping, ecc.)
 
+## Librerie utilizzabili
+Non si possono usare librerie diverse da quelle messe a disposizione durante il corso mentre si raccomanda di utilizzare tutto quello che e' stato messo a disposizione:
+* glm_utils.js per il caricamento di file .ob
+* mesh_utils.js 
+* webgl-utils.js
+* m4.js
+* jquery-3.6.0.js
+*  dat.gui.js 
+*  ui_components.js
+
 ## Consegna 
 Si richiede di consegnare un archivio cognome.zip (file zippato) contenente due cartelle:
 * la prima si chiami "project" e contenga il codice;
