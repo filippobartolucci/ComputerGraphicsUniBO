@@ -1,0 +1,10 @@
+{
+    "meshes":[
+        {
+            "name":"mesh_name_0",
+            "obj_source":"./data/chair/chair.obj",
+            "mtl_source":"./data/chair/chair.mtl",
+            "position": [0,0,0]
+        }
+    ]
+}
