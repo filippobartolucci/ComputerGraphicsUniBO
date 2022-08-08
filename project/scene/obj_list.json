@@ -1,0 +1,24 @@
+{
+    "meshes":[
+        {
+            "name":"mesh_name_0",
+            "obj_source":"./data/chair/chair.obj",
+            "mtl_source":"./data/chair/chair.mtl",
+            "position": [100,0,200]
+        },
+
+        {
+            "name":"mesh_name_1",
+            "obj_source":"./data/Ball.obj",
+            "mtl_source":"./data/Ball.mtl",
+            "position": [100,0,200]
+        },
+
+        {
+            "name":"mesh_name_2",
+            "obj_source":"./data/Ground.obj",
+            "mtl_source":"./data/Ground.mtl",
+            "position": [100,0,200]
+        }
+    ]
+}
