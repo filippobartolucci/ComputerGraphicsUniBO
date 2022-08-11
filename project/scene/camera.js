@@ -1,5 +1,5 @@
 class Camera {
-    constructor(pos, lookAt, up){
+    constructor(pos, lookAt, up, gl){
         this.position = pos
         this.forward = m4.normalize(m4.subtractVectors(lookAt, pos));
         this.right = m4.normalize(m4.cross(this.forward, up));
@@ -10,16 +10,27 @@ class Camera {
     // Rotates a camera’s view up or down. 
     // You can tilt up or tilt down. 
     // This rotates about a camera’s u axis.
-    tilt(){
-        // var n = m4.subtractVectors(this.position, this.forward);
-        // n = m4.normalize(n);
+    tilt(step){
+        let rotation = m4.axisRotation([1, 0, 0], step);
+        this.forward = m4.transformPoint(rotation,this.forward);
+        this.right = m4.cross(this.forward, this.up);
+        this.up = m4.cross(this.right, this.forward);
+        this.forward = m4.normalize(this.forward);
+        this.right = m4.normalize(this.right);
+        this.up = m4.normalize(this.up);
 
     }
 
-    // Rotates the camera’s view horizontally about the camera’s eye location.
+    // Rotates the camera’s view horizontally about the camera’s eye location
     // You can pan left or pan right.This rotates about a camera’s v axis.
-    pan(){
-
+    pan(step){
+        let rotation = m4.axisRotation([0, 1, 0], step);
+        this.forward = m4.transformPoint(rotation,this.forward);
+        this.right = m4.cross(this.forward, this.up);
+        this.up = m4.cross(this.right, this.forward);
+        this.forward = m4.normalize(this.forward);
+        this.right = m4.normalize(this.right);
+        this.up = m4.normalize(this.up);
     }
 
     // Tilts a camera sideways while maintaining its location and viewing direction.
@@ -68,5 +79,13 @@ class Camera {
         const cameraMatrix = m4.lookAt(this.position, look, this.up);
         return m4.inverse(cameraMatrix); // ViewMatrix
     };
+
+    getProjMatrix(){
+
+    }
+
+    getPosition(){
+        return this.position
+    }
 
 }

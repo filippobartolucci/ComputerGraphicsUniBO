@@ -1,16 +1,11 @@
 {
     "meshes":[
+
         {
             "name":"mesh_name_1",
-            "obj_source":"./data/room/room.obj",
-            "mtl_source":"./data/room/room.mtl",
-            "position": {"x":0, "y": 0, "z": 0}
-        },
-        {
-            "name":"mesh_name_1",
-            "obj_source":"./data/Ring/t_ring.obj",
-            "mtl_source":"./data/Ring/t_ring.mtl",
-            "position": {"x":0, "y": 0, "z": 0}
+            "obj_source":"./data/chair/chair.obj",
+            "mtl_source":"./data/chair/chair.mtl",
+            "position": [0, 0, 0]
         }
     ]
 }

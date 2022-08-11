@@ -7,29 +7,23 @@ class MeshObj {
 
         this.mesh = []; // This object stores all the mesh information
         this.mesh.sourceMesh = this.obj_source; // .sourceMesh is used in load_mesh.js
-        this.mesh.fileMTL = this.mtl_source
+        this.mesh.fileMTL = this.mtl_source;
         this.ready = false;
 
         LoadMesh(gl, this.mesh).then(() => {
-            // Moving the mesh to the initial position.
-            for (let i = 0; i < this.mesh.positions.length; i = i+3) {
-                this.mesh.positions[i] += parseFloat(this.position.x);
-                this.mesh.positions[i + 1] += parseFloat(this.position.y);
-                this.mesh.positions[i + 2] += parseFloat(this.position.z);
-            }
 
+            let x = this.position[0]
+            let y = this.position[1]
+            let z = this.position[2]
 
-            this.textures = []
-
-            this.mesh.materials.forEach(material => {
-                material.parameter.forEach((value,key) =>{
-                    if (key.startsWith("map")){
-                        let texture = this.textures[value]
-
-                    }
-                })
-
-            });
+            this.mesh.data.geometries.forEach(geom => {
+                // Moving the mesh to the initial position.
+                for (let i = 0; i < geom.data.position.length; i = i+3) {
+                    geom.data.position[i] += (y);
+                    geom.data.position[i+1] += (z);
+                    geom.data.position[i+2] += (x);
+                }
+            })
 
             this.ready = true;
         });
@@ -59,6 +53,8 @@ class MeshObj {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordBuffer);
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.mesh.texcoords), gl.STATIC_DRAW);
 
+
+
         gl.uniform3fv(gl.getUniformLocation(program, "diffuse" ), this.mesh.diffuse );
         gl.uniform3fv(gl.getUniformLocation(program, "ambient" ), this.mesh.ambient);
         gl.uniform3fv(gl.getUniformLocation(program, "specular"), this.mesh.specular );
@@ -83,6 +79,10 @@ class MeshObj {
         gl.enableVertexAttribArray(texcoordLocation);
         gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordBuffer);
         gl.vertexAttribPointer(texcoordLocation, size-1, type, normalize, stride, offset);
+
+
+
+
 
         let fieldOfViewRadians = degToRad(45);
         let modelXRotationRadians = degToRad(0);
@@ -156,4 +156,95 @@ class MeshObj {
 
 
     }
+
+    render2(gl, programInfo, projectionMatrix, camera, light){
+        if (!this.ready) return;
+
+        const defaultMaterial = {
+            diffuse: [1, 1, 1],
+            diffuseMap: this.mesh.textures.defaultWhite,
+            ambient: [0, 0, 0],
+            specular: [1, 1, 1],
+            shininess: 400,
+            opacity: 1,
+        };
+
+        const parts = this.mesh.data.geometries.map(({material, data}) => {
+            // Because data is just named arrays like this
+            //
+            // {
+            //   position: [...],
+            //   texcoord: [...],
+            //   normal: [...],
+            // }
+            //
+            // and because those names match the attributes in our vertex
+            // shader we can pass it directly into `createBufferInfoFromArrays`
+            // from the article "less code more fun".
+
+            if (data.color) {
+                if (data.position.length === data.color.length) {
+                    data.color = { numComponents: 3, data: data.color };
+                }
+            } else {
+                // there are no vertex colors so just use constant white
+                data.color = { value: [1, 1, 1, 1] };
+            }
+
+            // create a buffer for each array by calling
+            // gl.createBuffer, gl.bindBuffer, gl.bufferData
+            const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
+            return {
+                material: {
+                    ...defaultMaterial,
+                    ...this.mesh.materials[material],
+                },
+                bufferInfo,
+            };
+        });
+
+
+
+        function render(time) {
+            time *= 0.001;  // convert to seconds
+
+
+
+            const projection = projectionMatrix
+
+            const view = camera.getViewMatrix();
+
+            const sharedUniforms = {
+                u_lightDirection: m4.normalize([-1, 3, 5]),
+                u_view: view,
+                u_projection: projection,
+                u_viewWorldPosition: camera.getPosition()
+            };
+
+
+            gl.useProgram(programInfo.program);
+            webglUtils.setUniforms(programInfo, sharedUniforms);     // calls gl.uniform
+
+            // compute the world matrix once since all parts
+            // are at the same space.
+            let u_world = m4.yRotation(time);
+
+
+            for (const {bufferInfo, material} of parts) {
+                // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
+                webglUtils.setBuffersAndAttributes(gl, programInfo, bufferInfo);
+                // calls gl.uniform
+                webglUtils.setUniforms(programInfo, {
+                    u_world,
+                }, material);
+                // calls gl.drawArrays or gl.drawElements
+                webglUtils.drawBufferInfo(gl, bufferInfo);
+            }
+
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+
+    }
+
 }

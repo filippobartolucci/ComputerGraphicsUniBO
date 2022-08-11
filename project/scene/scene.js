@@ -14,17 +14,21 @@ class Scene {
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
         // Compiling vertex and fragment shader
-        this.program = webglUtils.createProgramFromScripts(this.gl, ["3d-vertex-shader", "3d-fragment-shader"])
+        this.program = webglUtils.createProgramInfo(this.gl, ["3d-vertex-shader", "3d-fragment-shader"])
 
         this.mesh_list = []; // Array used to store all the mesh used in the scene
         this.load_mesh_json(json_path).then(() => {});
 
         // Creating a camera for this scene
-        const position = [2.5, 0.5, 2.5], target = [0, 0, 0], up = [0, 1, 0];
+        // const position = [2.5, 0.5, 2.5], target = [0, 0, 0], up = [0, 1, 0];
+        const position = [0,0,5], target = [0, 0, 0], up = [0, 1, 0];
         this.camera = new Camera(position, target, up);
+        this.keys = {};
 
         // Light used in the scene
         this.light = {ambientLight : [0.0, 0.0, 0.0], colorLight : [1.0, 1.0, 1.0]}
+
+
 
     }
 
@@ -38,7 +42,7 @@ class Scene {
         });
     }
 
-    move_camera(key){
+    move_camera(){
         let step = 0.1;
         switch (key){
             case "w":
@@ -53,19 +57,81 @@ class Scene {
             case "a":
                 this.camera.truck(-step)
                 break;
-
+            case "u":
+                this.camera.pedestal(step)
+                break;
+            case "j":
+                this.camera.pedestal(-step)
+                break;
+            case "h":
+                this.camera.tilt(step)
+                break;
+            case "k":
+                this.camera.pan(-step)
+                break;
         }
     }
+
+    // Compute the projection matrix
+    projectionMatrix(){
+        let fieldOfViewRadians = degToRad(45);
+        let aspect = this.gl.canvas.clientWidth / this.gl.canvas.clientHeight;
+        let zmin=0.1;
+        return m4.perspective(fieldOfViewRadians, aspect, zmin, 200);
+    }
+
+    key_controller(){
+        let step = 0.05;
+
+        if (this.keys["w"]){
+            this.camera.dolly(step)
+        }
+        if (this.keys["s"]){
+            this.camera.dolly(-step)
+        }
+        if (this.keys["a"]){
+            this.camera.truck(-step)
+        }
+        if (this.keys["d"]){
+            this.camera.truck(step)
+        }
+        if (this.keys["u"]){
+            this.camera.pedestal(step)
+        }
+        if (this.keys["j"]){
+            this.camera.pedestal(-step)
+        }
+        if (this.keys["h"]){
+            let deg = degToRad(step*20)
+            this.camera.pan(deg)
+        }
+        if (this.keys["k"]){
+            let deg = degToRad(step*20)
+            this.camera.pan(-deg)
+        }
+        if (this.keys["ArrowUp"]){
+            step = step/2;
+            this.camera.tilt(step)
+        }
+        if (this.keys["ArrowDown"]){
+            step = step/2;
+            this.camera.tilt(-step)
+        }
+    }
+
 }
 
 // Draw everything in the scene on the canvas.
 function draw() {
-    let scene = main_scene
+
     resizeCanvasToDisplaySize(scene.gl.canvas);
     scene.gl.viewport(0, 0, scene.gl.canvas.width, scene.gl.canvas.height);
+    scene.gl.enable(scene.gl.DEPTH_TEST);
+
+    scene.key_controller();
 
     scene.mesh_list.forEach(m => {
-        m.render(scene.gl, scene.light, scene.program, scene.camera);
+        m.render2(scene.gl, scene.program, scene.projectionMatrix(), scene.camera, scene.light);
     });
 
     requestAnimationFrame(draw)
