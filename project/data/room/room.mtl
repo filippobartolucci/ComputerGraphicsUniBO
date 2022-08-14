@@ -1,35 +1,49 @@
 # Blender MTL File: 'room.blend'
-# Material Count: 3
+# Material Count: 4
 
 newmtl Concrete
-Ns 250.000000
+Ns 810.000011
 Ka 1.000000 1.000000 1.000000
-Kd 0.326379 0.326379 0.326379
+Kd 0.750062 0.747090 0.800000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd ConcretePanelsVerticalLarge003_COL_VAR1_1K.jpg
+map_Bump Concrete036_1K_NormalGL.jpg
+map_Kd Concrete036_1K_Color.jpg
 
 newmtl Floor
-Ns 250.000000
+Ns 818.202482
 Ka 1.000000 1.000000 1.000000
-Kd 0.684588 0.697273 0.800000
+Kd 0.787986 0.776077 0.800000
+Ks 0.622727 0.622727 0.622727
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump WoodFloor051_1K_NormalGL.jpg
+map_Kd WoodFloor051_1K_Color.jpg
+
+newmtl Foto
+Ns 1000.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump Wood083A_1K_NormalGL.jpg
-map_Kd Wood083A_1K_Color.jpg
+map_Kd io_texture.jpeg
 
 newmtl Wall
-Ns 250.000000
+Ns 765.625000
 Ka 1.000000 1.000000 1.000000
-Kd 0.459634 0.527666 0.559605
-Ks 0.500000 0.500000 0.500000
+Kd 0.800000 0.800000 0.800000
+Ks 1.000000 1.000000 1.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump WhiteBrickWall01_1K_Normal.png
+map_Kd WhiteBrickWall01_1K_BaseColor.png

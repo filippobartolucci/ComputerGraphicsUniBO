@@ -31,42 +31,6 @@ async function LoadMesh(gl,mesh) {
                 material[key1] = texture;
             }
     }
-    // let x=[], y=[], z=[];
-    // let xt=[], yt=[];
-    // let i0,i1,i2;
-    // let nvert=mesh.data.nvert;
-    // let nface=mesh.data.nface;
-    // let ntexcoord=mesh.data.textCoords.length;
-    //
-    // mesh.positions = [];
-    // mesh.normals = [];
-    // mesh.texcoords = [];
-    //
-    // for (let i=0; i<nvert; i++){
-    //     x[i]=mesh.data.vert[i+1].x;
-    //     y[i]=mesh.data.vert[i+1].y;
-    //     z[i]=mesh.data.vert[i+1].z;
-    // }
-    // for (let i=0; i<ntexcoord-1; i++){
-    //     xt[i]=mesh.data.textCoords[i+1].u;
-    //     yt[i]=mesh.data.textCoords[i+1].v;
-    // }
-    // for (let i=1; i<=nface; i++){
-    //     i0=mesh.data.face[i].vert[0]-1;
-    //     i1=mesh.data.face[i].vert[1]-1;
-    //     i2=mesh.data.face[i].vert[2]-1;
-    //     mesh.positions.push(x[i0],y[i0],z[i0],x[i1],y[i1],z[i1],x[i2],y[i2],z[i2]);
-    //     i0=mesh.data.facetnorms[i].i;
-    //     i1=mesh.data.facetnorms[i].j;
-    //     i2=mesh.data.facetnorms[i].k;
-    //     mesh.normals.push(i0,i1,i2,i0,i1,i2,i0,i1,i2);
-    //     i0=mesh.data.face[i].textCoordsIndex[0]-1;
-    //     i1=mesh.data.face[i].textCoordsIndex[1]-1;
-    //     i2=mesh.data.face[i].textCoordsIndex[2]-1;
-    //     mesh.texcoords.push(xt[i0],yt[i0],xt[i1],yt[i1],xt[i2],yt[i2]);
-    // }
-    // mesh.numVertices=3*nface;
-
 
     await Promise.resolve(mesh)
 }

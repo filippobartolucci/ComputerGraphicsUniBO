@@ -6,40 +6,51 @@
 		<title>WebGL UniBO - Filippo Bartolucci</title>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" type="text/css" href="style.css">
+		<link href="https://unpkg.com/nes.css@latest/css/nes.min.css" rel="stylesheet" />
+		<link rel="stylesheet" type="text/css" href="styles/style.css">
 
-		<!-- vertex shader -->
+
 		<script id="3d-vertex-shader" type="x-shader/x-vertex">
 			attribute vec4 a_position;
 			attribute vec3 a_normal;
 			attribute vec2 a_texcoord;
 			attribute vec4 a_color;
 
-			uniform mat4 u_projection;
-			uniform mat4 u_view;
-			uniform mat4 u_world;
-			uniform vec3 u_viewWorldPosition;
+			uniform mat4 u_projection;          // Projection Matrix
+			uniform mat4 u_view;				// Camera View Matrix
+			uniform mat4 u_world;				// World matrix
+			uniform vec3 u_viewWorldPosition;	// Camera position
+			uniform vec3 u_lightWorldPosition;	// Light position
 
 			varying vec3 v_normal;
+			varying vec3 v_surfaceToLight;
 			varying vec3 v_surfaceToView;
 			varying vec2 v_texcoord;
 			varying vec4 v_color;
 
 			void main() {
-				vec4 worldPosition = a_position;
-				gl_Position = u_projection * u_view * worldPosition;
-				v_surfaceToView = u_viewWorldPosition - worldPosition.xyz;
-				v_normal = a_normal;
+				vec4 world_position = u_world * a_position;  // World transform
+				mat4 pv_transform = u_projection * u_view; // Projection, view transform
+
+
+				gl_Position = pv_transform * world_position; // Transform the location of the vertex
+
+				v_normal =  vec3( pv_transform * vec4(a_normal, 1.0) ); // Applying
+
+				v_surfaceToLight = u_lightWorldPosition - a_position.xyz;
+				v_surfaceToView = u_viewWorldPosition - a_position.xyz;
+
 				v_texcoord = a_texcoord;
 				v_color = a_color;
 			}
 		</script>
-		<!-- fragment shader -->
+
 		<script id="3d-fragment-shader" type="x-shader/x-fragment">
 			precision highp float;
 
 			varying vec3 v_normal;
 			varying vec3 v_surfaceToView;
+			varying vec3 v_surfaceToLight;
 			varying vec2 v_texcoord;
 			varying vec4 v_color;
 
@@ -52,24 +63,27 @@
 			uniform float opacity;
 			uniform vec3 u_lightDirection;
 			uniform vec3 u_ambientLight;
+			uniform vec3 u_lightColor;
 
 			void main () {
 				vec3 normal = normalize(v_normal);
 
-				vec3 surfaceToViewDirection = normalize(v_surfaceToView);
-				vec3 halfVector = normalize(u_lightDirection + surfaceToViewDirection);
+				vec3 surfaceToLightDirection = normalize(v_surfaceToLight);
+  				vec3 surfaceToViewDirection = normalize(v_surfaceToView);
 
-				float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
-				float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
+  				vec3 halfVector = normalize(surfaceToLightDirection + surfaceToViewDirection);
+
+				float light = dot(u_lightDirection, surfaceToLightDirection)* .5 + .5;
+  				float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
 
 				vec4 diffuseMapColor = texture2D(diffuseMap, v_texcoord);
-				vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb * v_color.rgb;
+				vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb * v_color.rgb * u_lightColor.rgb;
 				float effectiveOpacity = opacity * diffuseMapColor.a * v_color.a;
 
 				gl_FragColor = vec4(
 					emissive +
 					ambient * u_ambientLight +
-					effectiveDiffuse * fakeLight +
+					effectiveDiffuse * light +
 					specular * pow(specularLight, shininess),
 					effectiveOpacity);
 			}
@@ -96,14 +110,40 @@
 			<div class="menu column2">
 				<div class="menu-row">
 
-					<button class="btn">
+					<div class="title">
+						Camera Control
+					</div>
+
+					<button class="btn" onmouseup="scene.keys['w']=false;" onmousedown="scene.keys['w']=true;">
 						Forward
 					</button>
 
-					<button class="btn">
+					<button class="btn" onmouseup="scene.keys['s']=false;" onmousedown="scene.keys['s']=true;">
 						Backward
 					</button>
 
+				</div>
+			</div>
+
+			<div class="menu column2">
+				<div class="menu-row">
+
+					<div class="title">
+						Light Control
+					</div>
+
+					<div>
+						X <input type="range" min="-100" max="100" value="0" class="slider" id="x_light">
+						R <input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="r_light">
+					</div>
+					<div>
+						Y <input type="range" min="-100" max="100" value="0" class="slider" id="y_light">
+						G <input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="g_light">
+					</div>
+					<div>
+						Z <input type="range" min="-100" max="100" value="0" class="slider" id="z_light">
+						B <input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="b_light">
+					</div>
 				</div>
 			</div>
 
@@ -118,6 +158,7 @@
 		<script src="libraries/webgl-utils.js"></script>
 
 		<script src="scene/camera.js"></script>
+		<script src="scene/animated_camera.js"></script>
 		<script src="scene/mesh_obj.js"></script>
 		<script src="scene/scene.js"></script>
 

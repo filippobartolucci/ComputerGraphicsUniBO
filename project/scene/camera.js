@@ -1,5 +1,5 @@
 class Camera {
-    constructor(pos, lookAt, up, gl){
+    constructor(pos, lookAt, up){
         this.position = pos
         this.forward = m4.normalize(m4.subtractVectors(lookAt, pos));
         this.right = m4.normalize(m4.cross(this.forward, up));
@@ -11,12 +11,10 @@ class Camera {
     // You can tilt up or tilt down. 
     // This rotates about a camera’s u axis.
     tilt(step){
-        let rotation = m4.axisRotation([1, 0, 0], step);
-        this.forward = m4.transformPoint(rotation,this.forward);
-        this.right = m4.cross(this.forward, this.up);
-        this.up = m4.cross(this.right, this.forward);
+        let rotation = m4.axisRotation(this.right, (step / 2));
+        this.forward = m4.transformPoint(rotation, this.forward)
+        this.up = m4.transformPoint(rotation, this.up)
         this.forward = m4.normalize(this.forward);
-        this.right = m4.normalize(this.right);
         this.up = m4.normalize(this.up);
 
     }
@@ -24,20 +22,24 @@ class Camera {
     // Rotates the camera’s view horizontally about the camera’s eye location
     // You can pan left or pan right.This rotates about a camera’s v axis.
     pan(step){
-        let rotation = m4.axisRotation([0, 1, 0], step);
+        let rotation = m4.axisRotation(this.up, step);
         this.forward = m4.transformPoint(rotation,this.forward);
-        this.right = m4.cross(this.forward, this.up);
-        this.up = m4.cross(this.right, this.forward);
+        this.right = m4.transformPoint(rotation,this.right);
+
         this.forward = m4.normalize(this.forward);
         this.right = m4.normalize(this.right);
-        this.up = m4.normalize(this.up);
     }
 
     // Tilts a camera sideways while maintaining its location and viewing direction.
     // You can cant left and cant right.
     // This is a rotation about a camera’s n axis.
-    cant(){
+    cant(step){
+        let rotation = m4.axisRotation(this.forward, (step / 2));
+        this.right = m4.transformPoint(rotation, this.right)
+        this.up = m4.transformPoint(rotation, this.up)
 
+        this.right = m4.normalize(this.right);
+        this.up = m4.normalize(this.up);
     }
 
     // Moves a camera’s location laterally(left or right) while the camera’s direction of view is unchanged.
@@ -67,23 +69,20 @@ class Camera {
         this.position[2] = this.position[2] + (this.forward[2] * dist);
     }
 
-    // Moves a camera in a circular path while maintaining the object it is looking at in the center of its view.
-    // You can arc left and arc right.
-    // This is a rotation about a vector in the direction of a camera’s v axis with the center of rotation at a camera’s center point.
-    arc(){
-
-    }
-
+    // Return the view matrix
     getViewMatrix(){
         const look = m4.addVectors(this.position, this.forward);
         const cameraMatrix = m4.lookAt(this.position, look, this.up);
         return m4.inverse(cameraMatrix); // ViewMatrix
     };
 
-    getProjMatrix(){
-
+    // Realign the camera horizontally
+    align(){
+        this.up=[0,1,0];
+        this.right = m4.normalize(m4.cross(this.forward, this.up));
     }
 
+    // Return this.position
     getPosition(){
         return this.position
     }

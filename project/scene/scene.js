@@ -21,15 +21,12 @@ class Scene {
 
         // Creating a camera for this scene
         // const position = [2.5, 0.5, 2.5], target = [0, 0, 0], up = [0, 1, 0];
-        const position = [0,0,5], target = [0, 0, 0], up = [0, 1, 0];
+        const position = [10,2,10], target = [0, 2, 0], up = [0, 1, 0];
         this.camera = new Camera(position, target, up);
         this.keys = {};
 
         // Light used in the scene
-        this.light = {ambientLight : [0.0, 0.0, 0.0], colorLight : [1.0, 1.0, 1.0]}
-
-
-
+        this.light = {position : [3, 3, 3], color : [1.0, 1.0, 1.0], direction : [1,1,1]}
     }
 
     // Function that loads a list of meshes from a json file
@@ -40,36 +37,6 @@ class Scene {
         json.meshes.forEach(obj => {
             this.mesh_list.push(new MeshObj(obj, this.gl));
         });
-    }
-
-    move_camera(){
-        let step = 0.1;
-        switch (key){
-            case "w":
-                this.camera.dolly(step)
-                break;
-            case "s":
-                this.camera.dolly(-step)
-                break;
-            case "d":
-                this.camera.truck(step)
-                break;
-            case "a":
-                this.camera.truck(-step)
-                break;
-            case "u":
-                this.camera.pedestal(step)
-                break;
-            case "j":
-                this.camera.pedestal(-step)
-                break;
-            case "h":
-                this.camera.tilt(step)
-                break;
-            case "k":
-                this.camera.pan(-step)
-                break;
-        }
     }
 
     // Compute the projection matrix
@@ -95,27 +62,47 @@ class Scene {
         if (this.keys["d"]){
             this.camera.truck(step)
         }
+        if (this.keys["q"]){
+            this.camera.pedestal(step)
+        }
+        if (this.keys["e"]){
+            this.camera.pedestal(-step)
+        }
+        if (this.keys["h"]){
+            this.camera.cant(-step)
+        }
+        if (this.keys["k"]){
+            this.camera.cant(step)
+        }
         if (this.keys["u"]){
             this.camera.pedestal(step)
         }
         if (this.keys["j"]){
             this.camera.pedestal(-step)
         }
-        if (this.keys["h"]){
-            let deg = degToRad(step*20)
-            this.camera.pan(deg)
-        }
-        if (this.keys["k"]){
-            let deg = degToRad(step*20)
-            this.camera.pan(-deg)
-        }
         if (this.keys["ArrowUp"]){
-            step = step/2;
             this.camera.tilt(step)
         }
         if (this.keys["ArrowDown"]){
-            step = step/2;
             this.camera.tilt(-step)
+        }
+        if (this.keys["ArrowLeft"]){
+            this.camera.pan(step)
+        }
+        if (this.keys["ArrowRight"]){
+            this.camera.pan(-step)
+        }
+        if (this.keys["r"]){
+            this.camera.align()
+        }
+    }
+
+    switch_camera(){
+        if (this.camera instanceof AnimatedCamera){
+            const position = [10,2,10], target = [0, 2, 0], up = [0, 1, 0];
+            this.camera = new Camera(position, target, up);
+        }else{
+            this.camera = new AnimatedCamera();
         }
     }
 
@@ -124,14 +111,19 @@ class Scene {
 // Draw everything in the scene on the canvas.
 function draw() {
 
+    // Resizing the canvas to the window size
     resizeCanvasToDisplaySize(scene.gl.canvas);
     scene.gl.viewport(0, 0, scene.gl.canvas.width, scene.gl.canvas.height);
     scene.gl.enable(scene.gl.DEPTH_TEST);
 
     scene.key_controller();
 
+    // Getting the projection matrix from the scene,
+    // calculated only once
+    let proj = scene.projectionMatrix()
+
     scene.mesh_list.forEach(m => {
-        m.render2(scene.gl, scene.program, scene.projectionMatrix(), scene.camera, scene.light);
+        m.render(scene.gl, scene.program, proj, scene.camera, scene.light);
     });
 
     requestAnimationFrame(draw)

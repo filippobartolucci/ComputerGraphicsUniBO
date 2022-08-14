@@ -1,0 +1,14 @@
+{
+  "meshes":[
+
+    {
+      "name":"mesh_name_1",
+      "obj_source":"./data/stanzetta/stanzetta.obj",
+      "mtl_source":"./data/stanzetta/stanzetta.mtl",
+      "position": [0, 0, 0]
+    }
+
+
+
+  ]
+}

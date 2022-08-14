@@ -3,9 +3,17 @@
 
         {
             "name":"mesh_name_1",
-            "obj_source":"./data/chair/chair.obj",
-            "mtl_source":"./data/chair/chair.mtl",
+            "obj_source":"./data/room/room.obj",
+            "mtl_source":"./data/room/room.mtl",
             "position": [0, 0, 0]
+        },
+
+        {
+            "name":"letto",
+            "obj_source":"./data/letto/letto.obj",
+            "mtl_source":"./data/letto/letto.mtl",
+            "position": [-2.1, -2.6, 0]
         }
+
     ]
 }
