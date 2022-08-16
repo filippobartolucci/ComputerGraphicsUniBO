@@ -4,8 +4,6 @@ class Scene {
         // Getting WebGL context from canvas
         this.canvas = document.getElementById(canvas_id);
         this.gl = this.canvas.getContext("webgl");
-        this.gl2d = this.canvas.getContext("2d");
-
 
         if (!this.gl) { // Check if WebGL is supported
             alert("WebGL not supported!");
@@ -13,6 +11,7 @@ class Scene {
         }
 
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+        this.gl.enable(this.gl.DEPTH_TEST);
 
         // Compiling vertex and fragment shader
         this.program = webglUtils.createProgramInfo(this.gl, ["3d-vertex-shader", "3d-fragment-shader"])
@@ -20,14 +19,16 @@ class Scene {
         this.mesh_list = []; // Array used to store all the mesh used in the scene
         this.load_mesh_json(json_path).then(() => {});
 
+        this.fov = 45;
         // Creating a camera for this scene
-        // const position = [2.5, 0.5, 2.5], target = [0, 0, 0], up = [0, 1, 0];
         const position = [10,2,10], target = [0, 2, 0], up = [0, 1, 0];
         this.camera = new Camera(position, target, up);
         this.keys = {};
 
         // Light used in the scene
-        this.light = {position : [3, 3, 3], color : [1.0, 1.0, 1.0], direction : [1,1,1]}
+        this.light = {ambient: [0.1,0.1,0.1], color : [1.0, 1.0, 1.0], direction : [1,1,1]}
+
+
     }
 
     // Function that loads a list of meshes from a json file
@@ -42,12 +43,13 @@ class Scene {
 
     // Compute the projection matrix
     projectionMatrix(){
-        let fieldOfViewRadians = degToRad(45);
+        let fieldOfViewRadians = degToRad(this.fov);
         let aspect = this.gl.canvas.clientWidth / this.gl.canvas.clientHeight;
         let zmin=0.1;
         return m4.perspective(fieldOfViewRadians, aspect, zmin, 200);
     }
 
+    // Move the camera using keyboard
     key_controller(){
         let step = 0.05;
 
@@ -98,6 +100,7 @@ class Scene {
         }
     }
 
+    // Change the type of camera, AnimatedCamera or Camera
     switch_camera(){
         if (this.camera instanceof AnimatedCamera){
             const position = [10,2,10], target = [0, 2, 0], up = [0, 1, 0];
@@ -107,8 +110,6 @@ class Scene {
         }
     }
 
-
-
 }
 
 // Draw everything in the scene on the canvas.
@@ -117,59 +118,19 @@ function draw() {
     // Resizing the canvas to the window size
     resizeCanvasToDisplaySize(scene.gl.canvas);
     scene.gl.viewport(0, 0, scene.gl.canvas.width, scene.gl.canvas.height);
-    scene.gl.enable(scene.gl.DEPTH_TEST);
 
     scene.key_controller();
-
 
     // Getting the projection matrix from the scene,
     // calculated only once
     let proj = scene.projectionMatrix()
 
+    let view = scene.camera.getViewMatrix()
+    scene.light.direction = m4.normalize(scene.light.direction);
+
     scene.mesh_list.forEach(m => {
-        m.render(scene.gl, scene.program, proj, scene.camera, scene.light);
+        m.render(scene.gl, scene.program, proj, view, scene.camera, scene.light);
     });
 
     requestAnimationFrame(draw)
-}
-
-function addtouchcanvas(scene){
-    scene.mouse = [];
-
-    function mouseDown(e) {
-        scene.mouse.drag = true;
-        scene.mouse.old_x = e.pageX;
-        scene.mouse.old_y = e.pageY;
-        e.preventDefault();
-    }
-
-    function mouseUp(e){
-        scene.mouse.drag=false;
-    }
-
-    function mouseMove(e) {
-        if (!scene.mouse.drag){
-            return false;
-        }
-        let dX=-(e.pageX-scene.mouse.old_x)*2*Math.PI/scene.canvas.width;
-        scene.camera.pan(-dX * 0.1);
-
-        let dY=-(e.pageY-scene.mouse.old_y)*2*Math.PI/scene.canvas.height;
-        scene.camera.tilt(-dY * 0.1);
-
-        scene.mouse.old_x=e.pageX;
-        scene.mouse.old_y=e.pageY;
-
-        e.preventDefault();
-    }
-
-    scene.canvas.addEventListener('touchstart',mouseDown,false);
-    scene.canvas.addEventListener('touchmove',mouseMove,false);
-    scene.canvas.addEventListener('touchend',mouseUp,false);
-    scene.canvas.addEventListener('touchend',mouseUp,false);
-    scene.canvas.addEventListener('mouseout',mouseUp,false);
-    scene.canvas.onmousedown=mouseDown;
-    scene.canvas.onmouseup=mouseUp;
-    scene.canvas.mouseout=mouseUp;
-    scene.canvas.onmousemove=mouseMove;
 }

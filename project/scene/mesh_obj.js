@@ -18,7 +18,6 @@ class MeshObj {
 
         LoadMesh(gl, this.mesh).then(() => {
             this.prepare_mesh(gl)
-
             this.ready = true;
         });
     }
@@ -84,17 +83,16 @@ class MeshObj {
 
     }
 
-    render(gl, programInfo, projectionMatrix, camera, light){
+    render(gl, programInfo, projectionMatrix, viewMatrix, camera, light){
         if (!this.ready) return;
 
         const sharedUniforms = {
-            u_lightWorldPosition: light.position,
-            u_lightDirection: light.direction,
-            u_lightColor: light.color,
-            u_view: camera.getViewMatrix(),
-            u_projection: projectionMatrix,
-            u_viewWorldPosition: camera.getPosition()
-
+            u_ambientLight: light.ambient,                      // Ambient
+            u_lightDirection: light.direction,                  // Light Direction
+            u_lightColor: light.color,                          // Light Color
+            u_view: viewMatrix,                                 // View Matrix
+            u_projection: projectionMatrix,                     // Projection Matrix
+            u_viewWorldPosition: camera.getPosition()           // Camera position
         };
 
         gl.useProgram(programInfo.program);
@@ -105,7 +103,7 @@ class MeshObj {
 
         if (this.rotate === true){
             u_world = m4.yRotate(u_world, degToRad(this.angle));
-            this.angle = this.angle === 360? 0 : this.angle+3;
+            this.angle = this.angle === 360? 0 : this.angle+5;
         }
 
         for (const {bufferInfo, material} of this.mesh.parts) {

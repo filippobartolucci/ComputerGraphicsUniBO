@@ -23,8 +23,8 @@
 		<script src="scene/animated_camera.js" defer></script>
 		<script src="scene/mesh_obj.js" defer></script>
 		<script src="scene/scene.js" defer></script>
-		<script src="utils.js"defer></script>
-		<script src="main.js"defer></script>
+		<script src="utils.js" defer></script>
+		<script src="main.js" defer></script>
 
 
 		<script id="3d-vertex-shader" type="x-shader/x-vertex">
@@ -37,25 +37,17 @@
 			uniform mat4 u_view;				// Camera View Matrix
 			uniform mat4 u_world;				// World matrix
 			uniform vec3 u_viewWorldPosition;	// Camera position
-			uniform vec3 u_lightWorldPosition;	// Light position
 
 			varying vec3 v_normal;
-			varying vec3 v_surfaceToLight;
 			varying vec3 v_surfaceToView;
 			varying vec2 v_texcoord;
 			varying vec4 v_color;
 
 			void main() {
 				vec4 world_position = u_world * a_position;  // World transform
-				mat4 pv_transform = u_projection * u_view; // Projection, view transform
-
-				gl_Position = pv_transform * world_position; // Transform the location of the vertex
-
-				v_normal =  vec3( u_projection * u_world * vec4(a_normal, 1.0) ); // Applying
-
-				v_surfaceToLight = u_lightWorldPosition - a_position.xyz;
-				v_surfaceToView = u_viewWorldPosition - a_position.xyz;
-
+				gl_Position = u_projection * u_view * world_position; // Transform the location of the vertex
+				v_surfaceToView = u_viewWorldPosition - world_position.xyz;
+				v_normal = mat3(u_world) * a_normal;
 				v_texcoord = a_texcoord;
 				v_color = a_color;
 			}
@@ -65,41 +57,41 @@
 			precision highp float;
 
 			varying vec3 v_normal;
-			varying vec3 v_surfaceToView;
-			varying vec3 v_surfaceToLight;
 			varying vec2 v_texcoord;
 			varying vec4 v_color;
+			varying vec3 v_surfaceToView;
 
-			uniform vec3 diffuse;
+			// Material Properties
 			uniform sampler2D diffuseMap;
+			uniform vec3 diffuse;
 			uniform vec3 ambient;
 			uniform vec3 emissive;
 			uniform vec3 specular;
 			uniform float shininess;
 			uniform float opacity;
+
+			// Light Properties
 			uniform vec3 u_lightDirection;
-			uniform vec3 u_ambientLight;
 			uniform vec3 u_lightColor;
+			uniform vec3 u_ambientLight;
 
 			void main () {
-				vec3 normal = normalize(v_normal);
+				vec3 normal = normalize(v_normal) * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
 
-				vec3 surfaceToLightDirection = normalize(v_surfaceToLight);
-  				vec3 surfaceToViewDirection = normalize(v_surfaceToView);
+				vec3 surfaceToViewDirection = normalize(v_surfaceToView);
+    			vec3 halfVector = normalize(u_lightDirection + surfaceToViewDirection);
 
-  				vec3 halfVector = normalize(surfaceToLightDirection + surfaceToViewDirection);
+				float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
+    			float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
 
-				float light = dot(u_lightDirection, surfaceToLightDirection)* .5 + .5;
-  				float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
-
-				vec4 diffuseMapColor = texture2D(diffuseMap, v_texcoord);
-				vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb * v_color.rgb * u_lightColor.rgb;
-				float effectiveOpacity = opacity * diffuseMapColor.a * v_color.a;
+    			vec4 diffuseMapColor = texture2D(diffuseMap, v_texcoord);
+    			vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb * u_lightColor.rgb * v_color.rgb;
+    			float effectiveOpacity = opacity * diffuseMapColor.a * v_color.a;
 
 				gl_FragColor = vec4(
 					emissive +
 					ambient * u_ambientLight +
-					effectiveDiffuse * light +
+					effectiveDiffuse * fakeLight +
 					specular * pow(specularLight, shininess),
 					effectiveOpacity);
 			}
@@ -119,15 +111,22 @@
 				</div>
 				<p></p>
 				<div>
-					Progetto sviluppato per il corso di Computer Graphics della Laurea Magistrale UniBO
+					Progetto sviluppato per il corso di Computer Graphics UniBO
 				</div>
+
+				<br>
+				Select a scene
+				<label for="scene_selector"></label><select id="scene_selector">
+					<option value="./scene/scene1.json">Scene 1</option>
+					<option value="./scene/scene2.json">Scene 2</option>
+				</select>
 			</div>
 
 			<div class="menu column2">
 				<div class = "menu-row">
 					<details>
 						<summary class="title">
-							Comandi
+							Camera controls
 						</summary>
 
 						<button class="btn" onmouseup="scene.keys['w']=false;" onmousedown="scene.keys['w']=true;">
@@ -137,6 +136,21 @@
 						<button class="btn" onmouseup="scene.keys['s']=false;" onmousedown="scene.keys['s']=true;">
 							Backward
 						</button>
+
+						<button class="btn" onmouseup="scene.switch_camera();">
+							Switch Camera
+						</button>
+
+						<details>
+							<summary class="title">
+								Keyboard
+							</summary>
+							<p style="text-align: left">
+								W/S : move forward/backward <br>
+								A/D : move left/right
+							</p>
+
+						</details>
 
 					</details>
 
@@ -152,16 +166,16 @@
 					</div>
 
 					<div>
-						X <input type="range" min="-100" max="100" value="0" class="slider" id="x_light">
-						R <input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="r_light">
+						X <label for="x_light"></label><input type="range" min="-100" max="100" value="0" class="slider" id="x_light">
+						R <label for="r_light"></label><input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="r_light">
 					</div>
 					<div>
-						Y <input type="range" min="-100" max="100" value="0" class="slider" id="y_light">
-						G <input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="g_light">
+						Y <label for="y_light"></label><input type="range" min="-100" max="100" value="0" class="slider" id="y_light">
+						G <label for="g_light"></label><input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="g_light">
 					</div>
 					<div>
-						Z <input type="range" min="-100" max="100" value="0" class="slider" id="z_light">
-						B <input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="b_light">
+						Z <label for="z_light"></label><input type="range" min="-100" max="100" value="0" class="slider" id="z_light">
+						B <label for="b_light"></label><input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="b_light">
 					</div>
 				</div>
 			</div>

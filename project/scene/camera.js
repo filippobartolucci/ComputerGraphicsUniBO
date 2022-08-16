@@ -14,8 +14,9 @@ class Camera {
         let rotation = m4.axisRotation(this.right, (step / 2));
         this.forward = m4.transformPoint(rotation, this.forward)
         this.up = m4.transformPoint(rotation, this.up)
+
         this.forward = m4.normalize(this.forward);
-        this.up = m4.normalize(this.up);
+        this.up = m4.normalize(this.up)
     }
 
     // Rotates the camera’s view horizontally about the camera’s eye location
@@ -24,6 +25,7 @@ class Camera {
         let rotation = m4.axisRotation(this.up, step);
         this.forward = m4.transformPoint(rotation,this.forward);
         this.right = m4.transformPoint(rotation,this.right);
+
         this.forward = m4.normalize(this.forward);
         this.right = m4.normalize(this.right);
     }
@@ -35,6 +37,7 @@ class Camera {
         let rotation = m4.axisRotation(this.forward, (step / 2));
         this.right = m4.transformPoint(rotation, this.right)
         this.up = m4.transformPoint(rotation, this.up)
+
         this.right = m4.normalize(this.right);
         this.up = m4.normalize(this.up);
     }
@@ -43,27 +46,34 @@ class Camera {
     // You can truck left or truck right.
     // This is a translation along a camera’s u axis.
     truck(dist){
-        this.position[0] = this.position[0] + (this.right[0] * dist);
-        this.position[1] = this.position[1] + (this.right[1] * dist);
-        this.position[2] = this.position[2] + (this.right[2] * dist);
+        this.position[0] += + (this.right[0] * dist);
+        this.position[1] += + (this.right[1] * dist);
+        this.position[2] += + (this.right[2] * dist);
     }
 
     // Elevates or lowers a camera on its stand.
     // You can pedestal up and pedestal down.
     // This is a translation along a camera’s v axis.
     pedestal(dist){
-        this.position[0] = this.position[0] + (this.up[0] * dist);
-        this.position[1] = this.position[1] + (this.up[1] * dist);
-        this.position[2] = this.position[2] + (this.up[2] * dist);
+        this.position[0] += (this.up[0] * dist);
+        this.position[1] += (this.up[1] * dist);
+        this.position[2] += (this.up[2] * dist);
     }
 
     // Moves a camera closer to, or further from, the location it is looking at.
     // You can dolly in and dolly out.
     // This is a translation along a camera’s n axis.
     dolly(dist){
-        this.position[0] = this.position[0] + (this.forward[0] * dist);
-        this.position[1] = this.position[1] + (this.forward[1] * dist);
-        this.position[2] = this.position[2] + (this.forward[2] * dist);
+        this.position[0] += (this.forward[0] * dist);
+        this.position[1] += (this.forward[1] * dist);
+        this.position[2] += (this.forward[2] * dist);
+    }
+
+    // Realign the camera
+    align(){
+        this.up=[0,1,0];
+        this.forward[1] = 0;
+        this.right = m4.normalize(m4.cross(this.forward, this.up));
     }
 
     // Return the view matrix
@@ -72,13 +82,6 @@ class Camera {
         const cameraMatrix = m4.lookAt(this.position, look, this.up);
         return m4.inverse(cameraMatrix); // ViewMatrix
     };
-
-    // Realign the camera
-    align(){
-        this.up=[0,1,0];
-        this.forward[1] = 0;
-        this.right = m4.normalize(m4.cross(this.forward, this.up));
-    }
 
     // Return this.position
     getPosition(){

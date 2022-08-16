@@ -1,7 +1,7 @@
 // WebGL App
 
 // Creating a new scene from a file
-let scene = new Scene("canvas", "./scene/obj_list.json");
+let scene = new Scene("canvas", "./scene/scene1.json");
 
 // Adding event listener for keyboard
 window.addEventListener('keydown', (e) => {scene.keys[e.key] = true;});
@@ -22,15 +22,8 @@ draw(scene);
 
 
 
-// var gui = new dat.gui.GUI();
-//
-// gui.remember(obj);
-//
-// gui.add(obj, 'message');
-// gui.add(obj, 'displayOutline');
-// gui.add(obj, 'explode');
-//
-// gui.add(obj, 'maxSize').min(-10).max(10).step(0.25);
+
+
 // gui.add(obj, 'height').step(5); // Increment amount
 //
 // // Choose from accepted values
