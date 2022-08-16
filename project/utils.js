@@ -60,18 +60,26 @@ function createXYQuadVertices() {
 
 function add_dat_gui(scene){
     let gui = new dat.gui.GUI();
-    scene['Change camera'] = function () {
+
+    scene['Toggle skybox'] = function () {
+        scene.toggle_skybox()
+    };
+    gui.add(scene, 'Toggle skybox');
+
+    gui.add(scene,"fov").min(30).max(120).step(30)
+
+    scene['Switch camera'] = function () {
         scene.switch_camera()
     };
-    gui.add(scene, 'Change camera');
+    gui.add(scene, 'Switch camera');
 
 
     let light_folder = gui.addFolder('Light');
 
     let light_position =  light_folder.addFolder('Direction');
-    light_position.add(scene.light.direction, 0).min(-10).max(10).step(0.25);
-    light_position.add(scene.light.direction, 1).min(-10).max(10).step(0.25);
-    light_position.add(scene.light.direction, 2).min(-10).max(10).step(0.25);
+    light_position.add(scene.light.direction, 0).min(0).max(10).step(0.25);
+    light_position.add(scene.light.direction, 1).min(0).max(10).step(0.25);
+    light_position.add(scene.light.direction, 2).min(0).max(10).step(0.25);
 
     let light_color =  light_folder.addFolder('Color');
     light_color.add(scene.light.color, 0).min(0).max(1).step(0.05);
@@ -90,7 +98,7 @@ function add_touch_canvas(scene){
         e.preventDefault();
     }
 
-    function mouseUp(e){
+    function mouseUp(s){
         scene.mouse.drag=false;
     }
 

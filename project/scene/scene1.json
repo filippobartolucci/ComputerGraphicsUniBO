@@ -2,19 +2,22 @@
     "meshes":[
 
         {
-            "name":"mesh_name_1",
+            "name":"stanza",
             "obj_source":"./data/room/room.obj",
             "mtl_source":"./data/room/room.mtl",
             "position": [0, 0, 0]
         },
 
+
+
         {
-            "name":"ventilatore",
-            "obj_source":"./data/fan/fan.obj",
-            "mtl_source":"./data/fan/fan.mtl",
-            "position": [0, 0, 2],
-            "rotate" : true
+            "name":"tv",
+            "obj_source":"./data/tv/tv.obj",
+            "mtl_source":"./data/tv/tv.mtl",
+            "position": [-3, 0, 0]
+
         }
+
 
     ]
 }

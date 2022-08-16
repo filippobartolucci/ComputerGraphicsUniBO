@@ -10,8 +10,8 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump /Users/fbartolucci/Desktop/room/Concrete036_1K_NormalGL.jpg
-map_Kd /Users/fbartolucci/Desktop/room/Concrete036_1K_Color.jpg
+map_Bump Concrete036_1K_NormalGL.jpg
+map_Kd Concrete036_1K_Color.jpg
 
 newmtl Floor
 Ns 818.202482
@@ -22,8 +22,8 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump /Users/fbartolucci/Desktop/room/WoodFloor051_1K_NormalGL.jpg
-map_Kd /Users/fbartolucci/Desktop/room/WoodFloor051_1K_Color.jpg
+map_Bump WoodFloor051_1K_NormalGL.jpg
+map_Kd WoodFloor051_1K_Color.jpg
 
 newmtl Foto
 Ns 1000.000000
@@ -34,7 +34,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd /Users/fbartolucci/Pictures/oppiliF otoF/io_texture.jpeg
+map_Kd io_texture.jpeg
 
 newmtl Wall
 Ns 765.625000
@@ -45,13 +45,13 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump /Users/fbartolucci/Desktop/room/WhiteBrickWall01_1K_Normal.png
-map_Kd /Users/fbartolucci/Desktop/room/WhiteBrickWall01_1K_BaseColor.png
+map_Bump WhiteBrickWall01_1K_Normal.png
+map_Kd WhiteBrickWall01_1K_BaseColor.png
 
 newmtl sofa
 Ns 359.999993
 Ka 1.000000 1.000000 1.000000
-Kd 0.046963 0.046963 0.046963
+Kd 0.190181 0.086725 0.037483
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000

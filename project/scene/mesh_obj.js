@@ -88,7 +88,7 @@ class MeshObj {
 
         const sharedUniforms = {
             u_ambientLight: light.ambient,                      // Ambient
-            u_lightDirection: light.direction,                  // Light Direction
+            u_lightDirection: m4.normalize(light.direction),                  // Light Direction
             u_lightColor: light.color,                          // Light Color
             u_view: viewMatrix,                                 // View Matrix
             u_projection: projectionMatrix,                     // Projection Matrix

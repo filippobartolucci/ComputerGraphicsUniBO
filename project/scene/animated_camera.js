@@ -30,6 +30,11 @@ class AnimatedCamera extends Camera{
 
     }
 
+    dolly(step){
+        if (this.radius < 5 && step > 0) return
+        this.radius -=degToRad(step * 100 );
+    }
+
     getViewMatrix() {
         this.#move();
 

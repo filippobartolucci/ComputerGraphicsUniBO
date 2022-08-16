@@ -19,15 +19,16 @@ class Scene {
         this.mesh_list = []; // Array used to store all the mesh used in the scene
         this.load_mesh_json(json_path).then(() => {});
 
-        this.fov = 45;
+        this.fov = 60;
         // Creating a camera for this scene
         const position = [10,2,10], target = [0, 2, 0], up = [0, 1, 0];
         this.camera = new Camera(position, target, up);
         this.keys = {};
 
         // Light used in the scene
-        this.light = {ambient: [0.1,0.1,0.1], color : [1.0, 1.0, 1.0], direction : [1,1,1]}
+        this.light = {ambient: [0.1,0.1,0.1], color : [1.0, 1.0, 1.0], direction : [1,5,1]}
 
+        this.prepareSkybox();
 
     }
 
@@ -110,11 +111,78 @@ class Scene {
         }
     }
 
+    prepareSkybox(){
+        this.skybox = [];
+        this.skybox.programInfo = webglUtils.createProgramInfo( this.gl, ["skybox-vertex-shader", "skybox-fragment-shader"]);
+        const arrays2 = createXYQuadVertices.apply(null,  Array.prototype.slice.call(arguments, 1));
+        this.skybox.quadBufferInfo = webglUtils.createBufferInfoFromArrays(this.gl, arrays2);
+        this.skybox.texture = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_CUBE_MAP, this.skybox.texture);
+
+        const faceInfos = [
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_POSITIVE_X,
+                url: './data/skybox/pos-x.jpg',
+            },
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+                url: './data/skybox/neg-x.jpg',
+            },
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_POSITIVE_Y,
+                url: './data/skybox/pos-y.jpg',
+            },
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+                url: './data/skybox/neg-y.jpg',
+            },
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_POSITIVE_Z,
+                url: './data/skybox/pos-z.jpg',
+            },
+            {
+                target: this.gl.TEXTURE_CUBE_MAP_NEGATIVE_Z,
+                url: './data/skybox/neg-z.jpg',
+            },
+
+        ];
+
+        faceInfos.forEach((faceInfo) => {
+            const {target, url} = faceInfo;
+
+            const level = 0;
+            const internalFormat = this.gl.RGBA;
+            const width = 512;
+            const height = 512;
+            const format = this.gl.RGBA;
+            const type = this.gl.UNSIGNED_BYTE;
+            this.gl.texImage2D(target, level, internalFormat, width, height, 0, format, type, null);
+
+            const image = new Image();
+            image.src = url;
+            let gl = this.gl;
+            image.addEventListener('load', function() {
+                // Now that the image has loaded make copy it to the texture.
+                gl.bindTexture(gl.TEXTURE_CUBE_MAP, scene.skybox.texture);
+                gl.texImage2D(target, level, internalFormat, format, type, image);
+                gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+            });
+        });
+        this.gl.generateMipmap(this.gl.TEXTURE_CUBE_MAP);
+        this.gl.texParameteri(this.gl.TEXTURE_CUBE_MAP, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_LINEAR);
+        this.skybox.enable = true;
+    }
+
+    // Enable/Disable skybox drawing
+    toggle_skybox(){
+        this.skybox.enable = !this.skybox.enable;
+    }
+
+
 }
 
 // Draw everything in the scene on the canvas.
 function draw() {
-
     // Resizing the canvas to the window size
     resizeCanvasToDisplaySize(scene.gl.canvas);
     scene.gl.viewport(0, 0, scene.gl.canvas.width, scene.gl.canvas.height);
@@ -122,15 +190,31 @@ function draw() {
     scene.key_controller();
 
     // Getting the projection matrix from the scene,
-    // calculated only once
+    // calculated only once for each mesh
     let proj = scene.projectionMatrix()
-
     let view = scene.camera.getViewMatrix()
-    scene.light.direction = m4.normalize(scene.light.direction);
 
+    scene.gl.depthFunc(scene.gl.LESS);
     scene.mesh_list.forEach(m => {
         m.render(scene.gl, scene.program, proj, view, scene.camera, scene.light);
     });
+
+    if (scene.skybox.enable){
+        view[12] = 0;  // Removing translation from view matrix
+        view[13] = 0;
+        view[14] = 0;
+
+        scene.gl.depthFunc(scene.gl.LEQUAL);
+        scene.gl.useProgram(scene.skybox.programInfo.program);
+
+        webglUtils.setBuffersAndAttributes(scene.gl, scene.skybox.programInfo, scene.skybox.quadBufferInfo);
+        webglUtils.setUniforms(scene.skybox.programInfo, {
+            u_viewDirectionProjectionInverse: m4.inverse(m4.multiply(proj, view)),
+            u_skybox: scene.skybox.texture,
+        });
+        webglUtils.drawBufferInfo(scene.gl, scene.skybox.quadBufferInfo);
+
+    }
 
     requestAnimationFrame(draw)
 }
