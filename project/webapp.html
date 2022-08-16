@@ -6,8 +6,25 @@
 		<title>WebGL UniBO - Filippo Bartolucci</title>
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<!-- CSS-->
 		<link href="https://unpkg.com/nes.css@latest/css/nes.min.css" rel="stylesheet" />
 		<link rel="stylesheet" type="text/css" href="styles/style.css">
+
+		<!-- Libraries-->
+		<script src="libraries/dat.gui.js" defer></script>
+		<script src="libraries/glm_utils.js" defer></script>
+		<script src="libraries/jquery-3.6.0.js" defer></script>
+		<script src="libraries/load_mesh.js" defer></script>
+		<script src="libraries/m4.js" defer></script>
+		<script src="libraries/mesh_utils.js" defer></script>
+		<script src="libraries/webgl-utils.js" defer></script>
+
+		<script src="scene/camera.js" defer></script>
+		<script src="scene/animated_camera.js" defer></script>
+		<script src="scene/mesh_obj.js" defer></script>
+		<script src="scene/scene.js" defer></script>
+		<script src="utils.js"defer></script>
+		<script src="main.js"defer></script>
 
 
 		<script id="3d-vertex-shader" type="x-shader/x-vertex">
@@ -32,10 +49,9 @@
 				vec4 world_position = u_world * a_position;  // World transform
 				mat4 pv_transform = u_projection * u_view; // Projection, view transform
 
-
 				gl_Position = pv_transform * world_position; // Transform the location of the vertex
 
-				v_normal =  vec3( pv_transform * vec4(a_normal, 1.0) ); // Applying
+				v_normal =  vec3( u_projection * u_world * vec4(a_normal, 1.0) ); // Applying
 
 				v_surfaceToLight = u_lightWorldPosition - a_position.xyz;
 				v_surfaceToView = u_viewWorldPosition - a_position.xyz;
@@ -108,19 +124,22 @@
 			</div>
 
 			<div class="menu column2">
-				<div class="menu-row">
+				<div class = "menu-row">
+					<details>
+						<summary class="title">
+							Comandi
+						</summary>
 
-					<div class="title">
-						Camera Control
-					</div>
+						<button class="btn" onmouseup="scene.keys['w']=false;" onmousedown="scene.keys['w']=true;">
+							Forward
+						</button>
 
-					<button class="btn" onmouseup="scene.keys['w']=false;" onmousedown="scene.keys['w']=true;">
-						Forward
-					</button>
+						<button class="btn" onmouseup="scene.keys['s']=false;" onmousedown="scene.keys['s']=true;">
+							Backward
+						</button>
 
-					<button class="btn" onmouseup="scene.keys['s']=false;" onmousedown="scene.keys['s']=true;">
-						Backward
-					</button>
+					</details>
+
 
 				</div>
 			</div>
@@ -148,22 +167,6 @@
 			</div>
 
 		</div>
-
-		<script src="libraries/dat.gui.js"></script>
-		<script src="libraries/glm_utils.js"></script>
-		<script src="libraries/jquery-3.6.0.js"></script>
-		<script src="libraries/load_mesh.js"></script>
-		<script src="libraries/m4.js"></script>
-		<script src="libraries/mesh_utils.js"></script>
-		<script src="libraries/webgl-utils.js"></script>
-
-		<script src="scene/camera.js"></script>
-		<script src="scene/animated_camera.js"></script>
-		<script src="scene/mesh_obj.js"></script>
-		<script src="scene/scene.js"></script>
-
-		<script src="utils.js"></script>
-		<script src="main.js"></script>
 
 	</body>
 

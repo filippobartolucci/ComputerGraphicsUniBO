@@ -1,10 +1,11 @@
 class Scene {
     // Scene constructor
     constructor(canvas_id, json_path){
-
         // Getting WebGL context from canvas
         this.canvas = document.getElementById(canvas_id);
         this.gl = this.canvas.getContext("webgl");
+        this.gl2d = this.canvas.getContext("2d");
+
 
         if (!this.gl) { // Check if WebGL is supported
             alert("WebGL not supported!");
@@ -106,6 +107,8 @@ class Scene {
         }
     }
 
+
+
 }
 
 // Draw everything in the scene on the canvas.
@@ -118,6 +121,7 @@ function draw() {
 
     scene.key_controller();
 
+
     // Getting the projection matrix from the scene,
     // calculated only once
     let proj = scene.projectionMatrix()
@@ -127,4 +131,45 @@ function draw() {
     });
 
     requestAnimationFrame(draw)
+}
+
+function addtouchcanvas(scene){
+    scene.mouse = [];
+
+    function mouseDown(e) {
+        scene.mouse.drag = true;
+        scene.mouse.old_x = e.pageX;
+        scene.mouse.old_y = e.pageY;
+        e.preventDefault();
+    }
+
+    function mouseUp(e){
+        scene.mouse.drag=false;
+    }
+
+    function mouseMove(e) {
+        if (!scene.mouse.drag){
+            return false;
+        }
+        let dX=-(e.pageX-scene.mouse.old_x)*2*Math.PI/scene.canvas.width;
+        scene.camera.pan(-dX * 0.1);
+
+        let dY=-(e.pageY-scene.mouse.old_y)*2*Math.PI/scene.canvas.height;
+        scene.camera.tilt(-dY * 0.1);
+
+        scene.mouse.old_x=e.pageX;
+        scene.mouse.old_y=e.pageY;
+
+        e.preventDefault();
+    }
+
+    scene.canvas.addEventListener('touchstart',mouseDown,false);
+    scene.canvas.addEventListener('touchmove',mouseMove,false);
+    scene.canvas.addEventListener('touchend',mouseUp,false);
+    scene.canvas.addEventListener('touchend',mouseUp,false);
+    scene.canvas.addEventListener('mouseout',mouseUp,false);
+    scene.canvas.onmousedown=mouseDown;
+    scene.canvas.onmouseup=mouseUp;
+    scene.canvas.mouseout=mouseUp;
+    scene.canvas.onmousemove=mouseMove;
 }

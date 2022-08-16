@@ -8,6 +8,12 @@ class MeshObj {
         this.mesh = []; // This object stores all the mesh information
         this.mesh.sourceMesh = this.obj_source; // .sourceMesh is used in load_mesh.js
         this.mesh.fileMTL = this.mtl_source;
+
+        if (obj.rotate){ // Used for world matrix transform
+            this.rotate = obj.rotate;
+            this.angle = 0;
+        }
+
         this.ready = false;
 
         LoadMesh(gl, this.mesh).then(() => {
@@ -94,9 +100,14 @@ class MeshObj {
         gl.useProgram(programInfo.program);
         webglUtils.setUniforms(programInfo, sharedUniforms);     // calls gl.uniform
 
-        // compute the world matrix once since all parts
-        // are at the same space.
+        // compute the world matrix
         let u_world = m4.identity()
+
+        if (this.rotate === true){
+            u_world = m4.yRotate(u_world, degToRad(this.angle));
+            this.angle = this.angle === 360? 0 : this.angle+3;
+        }
+
         for (const {bufferInfo, material} of this.mesh.parts) {
             // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
             webglUtils.setBuffersAndAttributes(gl, programInfo, bufferInfo);

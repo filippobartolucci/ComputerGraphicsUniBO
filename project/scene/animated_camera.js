@@ -21,7 +21,7 @@ class AnimatedCamera extends Camera{
         // How much does the camera turn
         // When it's close to an axis it's slower.
         let step = this.radius - Math.abs(this.position[0] - this.position[2]) + 1;
-        this.angle +=  step * this.direction * .09;
+        this.angle +=  step * this.direction * .04;
 
         // x and z are determined using polar coordinates
         let rad = degToRad(this.angle);

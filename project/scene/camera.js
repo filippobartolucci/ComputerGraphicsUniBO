@@ -16,7 +16,6 @@ class Camera {
         this.up = m4.transformPoint(rotation, this.up)
         this.forward = m4.normalize(this.forward);
         this.up = m4.normalize(this.up);
-
     }
 
     // Rotates the camera’s view horizontally about the camera’s eye location
@@ -25,7 +24,6 @@ class Camera {
         let rotation = m4.axisRotation(this.up, step);
         this.forward = m4.transformPoint(rotation,this.forward);
         this.right = m4.transformPoint(rotation,this.right);
-
         this.forward = m4.normalize(this.forward);
         this.right = m4.normalize(this.right);
     }
@@ -37,7 +35,6 @@ class Camera {
         let rotation = m4.axisRotation(this.forward, (step / 2));
         this.right = m4.transformPoint(rotation, this.right)
         this.up = m4.transformPoint(rotation, this.up)
-
         this.right = m4.normalize(this.right);
         this.up = m4.normalize(this.up);
     }
@@ -76,9 +73,10 @@ class Camera {
         return m4.inverse(cameraMatrix); // ViewMatrix
     };
 
-    // Realign the camera horizontally
+    // Realign the camera
     align(){
         this.up=[0,1,0];
+        this.forward[1] = 0;
         this.right = m4.normalize(m4.cross(this.forward, this.up));
     }
 

@@ -13,6 +13,14 @@
             "obj_source":"./data/letto/letto.obj",
             "mtl_source":"./data/letto/letto.mtl",
             "position": [-2.1, -2.6, 0]
+        },
+
+        {
+            "name":"ventilatore",
+            "obj_source":"./data/fan/fan.obj",
+            "mtl_source":"./data/fan/fan.mtl",
+            "position": [0, 0, 2],
+            "rotate" : true
         }
 
     ]
