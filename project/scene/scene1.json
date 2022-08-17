@@ -8,7 +8,13 @@
             "position": [0, 0, 0]
         },
 
-
+        {
+            "name":"ventilatore",
+            "obj_source":"./data/fan/fan.obj",
+            "mtl_source":"./data/fan/fan.mtl",
+            "position": [0, 0, 3],
+            "rotate" : true
+        },
 
         {
             "name":"tv",
@@ -16,8 +22,14 @@
             "mtl_source":"./data/tv/tv.mtl",
             "position": [-3, 0, 0]
 
-        }
+        },
+        {
+            "name":"vinile",
+            "obj_source":"./data/mirror/mirror.obj",
+            "mtl_source":"./data/mirror/mirror.mtl",
+            "position": [1.2, -3.8, 3.3]
 
+        }
 
     ]
 }

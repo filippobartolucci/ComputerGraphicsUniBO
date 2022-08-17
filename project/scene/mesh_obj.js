@@ -17,12 +17,12 @@ class MeshObj {
         this.ready = false;
 
         LoadMesh(gl, this.mesh).then(() => {
-            this.prepare_mesh(gl)
+            this.prepare_mesh(gl).then(() => {})
             this.ready = true;
         });
     }
 
-    prepare_mesh(gl){
+    async prepare_mesh(gl){
 
         // Moving to the initial position
         let x = this.position[0]
@@ -88,7 +88,7 @@ class MeshObj {
 
         const sharedUniforms = {
             u_ambientLight: light.ambient,                      // Ambient
-            u_lightDirection: m4.normalize(light.direction),                  // Light Direction
+            u_lightDirection: m4.normalize(light.direction),    // Light Direction
             u_lightColor: light.color,                          // Light Color
             u_view: viewMatrix,                                 // View Matrix
             u_projection: projectionMatrix,                     // Projection Matrix

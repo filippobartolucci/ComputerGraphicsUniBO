@@ -193,7 +193,6 @@ function draw() {
     // calculated only once for each mesh
     let proj = scene.projectionMatrix()
     let view = scene.camera.getViewMatrix()
-
     scene.gl.depthFunc(scene.gl.LESS);
     scene.mesh_list.forEach(m => {
         m.render(scene.gl, scene.program, proj, view, scene.camera, scene.light);
@@ -203,7 +202,6 @@ function draw() {
         view[12] = 0;  // Removing translation from view matrix
         view[13] = 0;
         view[14] = 0;
-
         scene.gl.depthFunc(scene.gl.LEQUAL);
         scene.gl.useProgram(scene.skybox.programInfo.program);
 
@@ -213,7 +211,6 @@ function draw() {
             u_skybox: scene.skybox.texture,
         });
         webglUtils.drawBufferInfo(scene.gl, scene.skybox.quadBufferInfo);
-
     }
 
     requestAnimationFrame(draw)

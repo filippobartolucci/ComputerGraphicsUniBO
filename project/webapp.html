@@ -52,7 +52,6 @@
 				v_color = a_color;
 			}
 		</script>
-
 		<script id="3d-fragment-shader" type="x-shader/x-fragment">
 			precision highp float;
 
@@ -143,7 +142,12 @@
 					<option value="./scene/scene1.json">Scene 1</option>
 					<option value="./scene/scene2.json">Scene 2</option>
 				</select>
+
+				<div id ="gui">
+				</div>
 			</div>
+
+
 
 			<div class="menu column2">
 				<div class = "menu-row">
@@ -187,6 +191,8 @@
 					<div class="title">
 						Light Control
 					</div>
+
+
 
 					<div>
 						X <label for="x_light"></label><input type="range" min="-100" max="100" value="0" class="slider" id="x_light">

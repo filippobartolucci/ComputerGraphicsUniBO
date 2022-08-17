@@ -59,7 +59,7 @@ function createXYQuadVertices() {
 }
 
 function add_dat_gui(scene){
-    let gui = new dat.gui.GUI();
+    let gui = new dat.gui.GUI({autoPlace: false});
 
     scene['Toggle skybox'] = function () {
         scene.toggle_skybox()
@@ -77,14 +77,16 @@ function add_dat_gui(scene){
     let light_folder = gui.addFolder('Light');
 
     let light_position =  light_folder.addFolder('Direction');
-    light_position.add(scene.light.direction, 0).min(0).max(10).step(0.25);
-    light_position.add(scene.light.direction, 1).min(0).max(10).step(0.25);
-    light_position.add(scene.light.direction, 2).min(0).max(10).step(0.25);
+    light_position.add(scene.light.direction, 0).min(-10).max(10).step(0.25);
+    light_position.add(scene.light.direction, 1).min(-10).max(10).step(0.25);
+    light_position.add(scene.light.direction, 2).min(-10).max(10).step(0.25);
 
     let light_color =  light_folder.addFolder('Color');
     light_color.add(scene.light.color, 0).min(0).max(1).step(0.05);
     light_color.add(scene.light.color, 1).min(0).max(1).step(0.05);
     light_color.add(scene.light.color, 2).min(0).max(1).step(0.05);
+
+    document.getElementById("gui").append(gui.domElement)
 
 }
 
@@ -97,24 +99,20 @@ function add_touch_canvas(scene){
         scene.mouse.old_y = e.pageY;
         e.preventDefault();
     }
-
     function mouseUp(s){
         scene.mouse.drag=false;
     }
-
     function mouseMove(e) {
         if (!scene.mouse.drag){
             return false;
         }
         let dX=-(e.pageX-scene.mouse.old_x)*2*Math.PI/scene.canvas.width;
         scene.camera.pan(-dX * 0.1);
-
         let dY=-(e.pageY-scene.mouse.old_y)*2*Math.PI/scene.canvas.height;
         scene.camera.tilt(-dY * 0.1);
 
         scene.mouse.old_x=e.pageX;
         scene.mouse.old_y=e.pageY;
-
         e.preventDefault();
     }
 
