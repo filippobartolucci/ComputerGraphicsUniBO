@@ -1,13 +1,13 @@
 class MeshObj {
     constructor(obj,gl) {
-        this.name = obj.name;
-        this.obj_source = obj.obj_source;
-        this.mtl_source = obj.mtl_source;
-        this.position = obj.position;
+        this.name = obj.name;               // Obj name, used only for debugging
+        this.obj_source = obj.obj_source;   // Path to obj file
+        this.mtl_source = obj.mtl_source;   // Path to mtl file
+        this.position = obj.position;       // Where to move the mesh once loaded
 
-        this.mesh = []; // This object stores all the mesh information
+        this.mesh = [];                         // This object stores all the mesh information
         this.mesh.sourceMesh = this.obj_source; // .sourceMesh is used in load_mesh.js
-        this.mesh.fileMTL = this.mtl_source;
+        this.mesh.fileMTL = this.mtl_source;    // .fileMTL is used in load_mesh.js
 
         if (obj.rotate){ // Used for world matrix transform
             this.rotate = obj.rotate;
@@ -16,18 +16,30 @@ class MeshObj {
 
         this.ready = false;
 
-        LoadMesh(gl, this.mesh).then(() => {
+        LoadMesh(gl, this.mesh).then(() => { // After loading the mesh...
             this.prepare_mesh(gl).then(() => {})
-            this.ready = true;
+            this.ready = true; // now the mesh is ready to be rendered
         });
     }
 
     async prepare_mesh(gl){
 
+        // Generic material
+        const defaultMaterial = {
+            // Setting default material properties
+            diffuse: [1, 1, 1],
+            diffuseMap: this.mesh.textures.defaultWhite,
+            ambient: [0, 0, 0],
+            specular: [1, 1, 1],
+            shininess: 400,
+            opacity: 1,
+        };
+
         // Moving to the initial position
-        let x = this.position[0]
-        let y = this.position[1]
         let z = this.position[2]
+        let y = this.position[1]
+        let x = this.position[0]
+
 
         this.mesh.data.geometries.forEach(geom => {
             // Moving the mesh to the initial position.
@@ -38,29 +50,7 @@ class MeshObj {
             }
         })
 
-        // Generic material
-        const defaultMaterial = {
-            diffuse: [1, 1, 1],
-            diffuseMap: this.mesh.textures.defaultWhite,
-            ambient: [0, 0, 0],
-            specular: [1, 1, 1],
-            shininess: 400,
-            opacity: 1,
-        };
-
         this.mesh.parts = this.mesh.data.geometries.map(({material, data}) => {
-            // Because data is just named arrays like this
-            //
-            // {
-            //   position: [...],
-            //   texcoord: [...],
-            //   normal: [...],
-            // }
-            //
-            // and because those names match the attributes in our vertex
-            // shader we can pass it directly into `createBufferInfoFromArrays`
-            // from the article "less code more fun".
-
             if (data.color) {
                 if (data.position.length === data.color.length) {
                     data.color = { numComponents: 3, data: data.color };
@@ -69,8 +59,6 @@ class MeshObj {
                 data.color = { value: [1, 1, 1, 1] };
             }
 
-            // create a buffer for each array by calling
-            // gl.createBuffer, gl.bindBuffer, gl.bufferData
             const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
             return {
                 material: {
@@ -80,11 +68,10 @@ class MeshObj {
                 bufferInfo,
             };
         });
-
     }
 
     render(gl, programInfo, projectionMatrix, viewMatrix, camera, light){
-        if (!this.ready) return;
+        if (!this.ready) return;    // waiting for async functions to complete
 
         const sharedUniforms = {
             u_ambientLight: light.ambient,                      // Ambient
@@ -116,7 +103,5 @@ class MeshObj {
             // calls gl.drawArrays or gl.drawElements
             webglUtils.drawBufferInfo(gl, bufferInfo);
         }
-
     }
-
 }

@@ -38,7 +38,11 @@ class Scene {
         const response = await fetch(json_path);
         const json = await response.json();
         json.meshes.forEach(obj => {
-            this.mesh_list.push(new MeshObj(obj, this.gl));
+            if(obj.mirror){
+                this.mesh_list.push(new Mirror(obj, this.gl));
+            }else{
+                this.mesh_list.push(new MeshObj(obj, this.gl));
+            }
         });
     }
 
@@ -160,7 +164,10 @@ class Scene {
 
             const image = new Image();
             image.src = url;
+
             let gl = this.gl;
+            let scene = this;
+
             image.addEventListener('load', function() {
                 // Now that the image has loaded make copy it to the texture.
                 gl.bindTexture(gl.TEXTURE_CUBE_MAP, scene.skybox.texture);
@@ -187,19 +194,23 @@ function draw() {
     resizeCanvasToDisplaySize(scene.gl.canvas);
     scene.gl.viewport(0, 0, scene.gl.canvas.width, scene.gl.canvas.height);
 
+    // Updating the camera position
     scene.key_controller();
 
     // Getting the projection matrix from the scene,
-    // calculated only once for each mesh
+    // calculated only once
     let proj = scene.projectionMatrix()
     let view = scene.camera.getViewMatrix()
+
     scene.gl.depthFunc(scene.gl.LESS);
+
     scene.mesh_list.forEach(m => {
         m.render(scene.gl, scene.program, proj, view, scene.camera, scene.light);
     });
 
     if (scene.skybox.enable){
-        view[12] = 0;  // Removing translation from view matrix
+        // Removing translation from view matrix
+        view[12] = 0;
         view[13] = 0;
         view[14] = 0;
         scene.gl.depthFunc(scene.gl.LEQUAL);

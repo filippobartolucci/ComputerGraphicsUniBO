@@ -1,12 +1,6 @@
-
-
-
 /*========== Loading and storing the geometry ==========*/
 async function LoadMesh(gl,mesh) {
     await retrieveDataFromSource(mesh);
-
-    //Ora che ho la mesh e il/i materiali associati, mi occupo di caricare
-    //la/le texture che tali materiali contengono
 
     mesh.textures =[];
 
@@ -61,15 +55,7 @@ async function loadMeshFromOBJ(mesh) {
         error: handleError,
     });
 
-    function parseobjFile(result, status, xhr){
-        // console.log(parseOBJ(result))
-        // result = glmReadOBJ(result,new subd_mesh());
-        //
-        // //scommentare/commentare per utilizzare o meno la LoadSubdivMesh
-        // //mesh.data = LoadSubdivMesh(result.mesh);
-        // mesh.data = result.mesh;
-        // mesh.fileMTL = result.fileMtl;
-
+    function parseobjFile(result){
         mesh.data = parseOBJ(result)
     }
 
@@ -125,7 +111,7 @@ async function readMTLFile(MTLfileName, mesh){
         success: parseMTLFile,
         error: handleError,
     });
-    function parseMTLFile(result, status, xhr){
+    function parseMTLFile(result){
         //glmReadMTL(result, mesh);
         mesh.materials = parseMTL(result);
     }
@@ -144,7 +130,7 @@ async function getMTLFile(MTLfileName, mesh){
         success: parseMTLFile,
         error: handleError,
     });
-    function parseMTLFile(result, status, xhr){
+    function parseMTLFile(result){
         let mtl = parseMTL(result)
 
     }
@@ -267,8 +253,6 @@ function parseOBJ(text) {
     const noop = () => {};
 
     function newGeometry() {
-        // If there is an existing geometry and it's
-        // not empty then start a new one.
         if (geometry && geometry.data.position.length) {
             geometry = undefined;
         }

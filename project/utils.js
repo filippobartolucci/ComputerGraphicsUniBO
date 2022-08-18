@@ -66,7 +66,7 @@ function add_dat_gui(scene){
     };
     gui.add(scene, 'Toggle skybox');
 
-    gui.add(scene,"fov").min(30).max(120).step(30)
+    gui.add(scene,"fov").min(30).max(12).step(30)
 
     scene['Switch camera'] = function () {
         scene.switch_camera()

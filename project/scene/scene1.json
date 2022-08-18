@@ -24,12 +24,28 @@
 
         },
         {
-            "name":"vinile",
-            "obj_source":"./data/mirror/mirror.obj",
-            "mtl_source":"./data/mirror/mirror.mtl",
+            "name":"vinile1",
+            "obj_source":"./data/vinyl/pink_floyd.obj",
+            "mtl_source":"./data/vinyl/pink_floyd.mtl",
             "position": [1.2, -3.8, 3.3]
 
-        }
+        },
 
+        {
+            "name":"vinile2",
+            "obj_source":"./data/vinyl/hendrix.obj",
+            "mtl_source":"./data/vinyl/hendrix.mtl",
+            "position": [0, -3.8, 3.3]
+
+        },
+
+        {
+            "name":"mirror",
+            "mirror" : true,
+            "obj_source":"./data/vinyl/hendrix.obj",
+            "env_path":"./data/skybox/",
+            "position": [0, 0, 3]
+
+        }
     ]
 }
