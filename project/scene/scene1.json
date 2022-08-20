@@ -37,15 +37,6 @@
             "mtl_source":"./data/vinyl/hendrix.mtl",
             "position": [0, -3.8, 3.3]
 
-        },
-
-        {
-            "name":"mirror",
-            "mirror" : true,
-            "obj_source":"./data/vinyl/hendrix.obj",
-            "env_path":"./data/skybox/",
-            "position": [0, 0, 3]
-
         }
     ]
 }

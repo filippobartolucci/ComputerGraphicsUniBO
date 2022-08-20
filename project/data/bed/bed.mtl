@@ -2,7 +2,7 @@
 # Material Count: 5
 
 newmtl Coperta
-Ns 250.000000
+Ns 1000.000000
 Ka 1.000000 1.000000 1.000000
 Kd 1.000000 0.324584 0.422880
 Ks 0.500000 0.500000 0.500000
@@ -10,7 +10,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump Fabric026_1K_NormalGL.jpg
+map_Bump Leather037_1K_NormalGL.jpg
 
 newmtl Cuscino
 Ns 250.000000
@@ -31,6 +31,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump wood_0048_normal_opengl_1k.png
 
 newmtl Materasso
 Ns 250.000000
@@ -43,11 +44,12 @@ d 1.000000
 illum 2
 
 newmtl legno
-Ns 250.000000
+Ns 777.603294
 Ka 1.000000 1.000000 1.000000
 Kd 0.201903 0.088342 0.031111
-Ks 0.500000 0.500000 0.500000
+Ks 0.413636 0.413636 0.413636
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump wood_0048_normal_opengl_1k.png

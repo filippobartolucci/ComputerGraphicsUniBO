@@ -20,6 +20,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump wood_0048_normal_opengl_1k.png
 
 newmtl Wall
 Ns 562.500000
@@ -30,13 +31,15 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump wood_0048_normal_opengl_1k.png
 
 newmtl Wood
-Ns 250.000000
+Ns 506.038191
 Ka 1.000000 1.000000 1.000000
 Kd 0.496926 0.342625 0.123623
-Ks 0.500000 0.500000 0.500000
+Ks 0.772727 0.772727 0.772727
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Bump wood_0048_normal_opengl_1k.png

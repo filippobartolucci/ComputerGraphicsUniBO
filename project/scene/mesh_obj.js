@@ -92,13 +92,13 @@ class MeshObj {
             u_world = m4.yRotate(u_world, degToRad(this.angle));
             this.angle = this.angle === 360? 0 : this.angle+5;
         }
-
         for (const {bufferInfo, material} of this.mesh.parts) {
             // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
             webglUtils.setBuffersAndAttributes(gl, programInfo, bufferInfo);
             // calls gl.uniform
             webglUtils.setUniforms(programInfo, {
                 u_world,
+                u_lightPosition: (light.position),
             }, material);
             // calls gl.drawArrays or gl.drawElements
             webglUtils.drawBufferInfo(gl, bufferInfo);

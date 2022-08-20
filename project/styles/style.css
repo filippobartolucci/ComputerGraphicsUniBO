@@ -86,7 +86,7 @@ body {
 }
 
 .btn:active {
-    background: linear-gradient(#cccccc, #afaeae);
+    background: linear-gradient(#626262, #626262);
     color: #fff;
     position: relative;
 }

@@ -109,7 +109,7 @@ class Mirror{
         this.ready = true;
     }
 
-    render(gl, program, projectionMatrix, viewMatrix, camera){
+    render(gl, program, projectionMatrix, viewMatrix, camera, light){
         if (!this.ready) return;    // waiting for async functions to complete
 
         let u_texture = this.texture;
@@ -120,6 +120,7 @@ class Mirror{
             u_view: viewMatrix,
             u_projection: projectionMatrix,
             u_world: u_world,
+            u_lightColor: light.color,
             u_worldCameraPosition: camera.getPosition()
         };
 

@@ -7,7 +7,6 @@
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<!-- CSS-->
-		<link href="https://unpkg.com/nes.css@latest/css/nes.min.css" rel="stylesheet" />
 		<link rel="stylesheet" type="text/css" href="styles/style.css">
 
 		<!-- Libraries-->
@@ -28,7 +27,7 @@
 		<script src="main.js" defer></script>
 
 
-		<script id="3d-vertex-shader" type="x-shader/x-vertex">
+		<script id="base-vertex-shader" type="x-shader/x-vertex">
 			attribute vec4 a_position;
 			attribute vec3 a_normal;
 			attribute vec2 a_texcoord;
@@ -44,6 +43,7 @@
 			varying vec2 v_texcoord;
 			varying vec4 v_color;
 
+
 			void main() {
 				vec4 world_position = u_world * a_position;  // World transform
 				gl_Position = u_projection * u_view * world_position; // Transform the location of the vertex
@@ -53,13 +53,14 @@
 				v_color = a_color;
 			}
 		</script>
-		<script id="3d-fragment-shader" type="x-shader/x-fragment">
+		<script id="base-fragment-shader" type="x-shader/x-fragment">
 			precision highp float;
 
-			varying vec3 v_normal;
-			varying vec2 v_texcoord;
+			varying vec3 v_normal;  	//w_nv
+			varying vec2 v_texcoord; 	//o_uv
 			varying vec4 v_color;
 			varying vec3 v_surfaceToView;
+
 
 			// Material Properties
 			uniform sampler2D diffuseMap;
@@ -78,7 +79,6 @@
 
 			void main () {
 				vec3 normal = normalize(v_normal) * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
-				//vec3 normal = normalize(texture2D(normalMap, v_texcoord).rgb );
 
 				vec3 surfaceToViewDirection = normalize(v_surfaceToView);
     			vec3 halfVector = normalize(u_lightDirection + surfaceToViewDirection);
@@ -99,6 +99,103 @@
 			}
 		</script>
 
+		<script id="bump-vertex-shader" type="x-shader/x-vertex">
+			attribute vec4 a_position;
+			attribute vec3 a_normal;
+			attribute vec2 a_texcoord;
+			attribute vec4 a_color;
+
+			uniform mat4 u_projection;          // Projection Matrix
+			uniform mat4 u_view;				// Camera View Matrix
+			uniform mat4 u_world;				// World matrix
+			uniform vec3 u_viewWorldPosition;	// Camera position
+
+			varying vec3 v_normal;
+			varying vec3 v_surfaceToView;
+			varying vec2 v_texcoord;
+			varying vec4 v_color;
+			varying vec3 w_pos;
+
+
+			void main() {
+				vec4 world_position = u_world * a_position;  // World transform
+				gl_Position = u_projection * u_view * world_position; // Transform the location of the vertex
+
+				v_surfaceToView = u_viewWorldPosition - world_position.xyz;
+				v_normal = mat3(u_world) * a_normal;
+				v_texcoord = a_texcoord;
+				v_color = a_color;
+				w_pos = world_position.xyz;
+			}
+		</script>
+		<script id="bump-fragment-shader" type="x-shader/x-fragment">
+			#extension GL_OES_standard_derivatives : enable
+			precision highp float;
+
+			varying vec3 v_normal;  	//w_nv
+			varying vec2 v_texcoord; 	//o_uv
+			varying vec4 v_color;
+			varying vec3 v_surfaceToView;
+			varying vec3 w_pos;
+
+
+			// Material Properties
+			uniform sampler2D diffuseMap;
+			uniform sampler2D normalMap;
+			uniform vec3 diffuse;
+			uniform vec3 ambient;
+			uniform vec3 emissive;
+			uniform vec3 specular;
+			uniform float shininess;
+			uniform float opacity;
+
+			// Light Properties
+			uniform vec3 u_lightDirection;
+			uniform vec3 u_lightPosition;
+			uniform vec3 u_lightColor;
+			uniform vec3 u_ambientLight;
+
+			void main () {
+				vec3 normal = normalize(v_normal) * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+
+				vec3 N = normalize(v_normal);
+				vec3 dp1 = dFdx(w_pos);
+				vec3 dp2 = dFdy(w_pos);
+				vec2 duv1 = dFdx(v_texcoord);
+				vec2 duv2 = dFdy(v_texcoord);
+				vec3 dp2perp = cross(dp2, N);
+				vec3 dp1perp = cross(N, dp1);
+				vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
+				vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
+				float invmax = inversesqrt(max(dot(T,T), dot(B,B)));
+				mat3 tm = mat3(T * invmax, B * invmax, N);
+				mat3  tbn_inv = mat3(vec3(tm[0].x, tm[1].x, tm[2].x), vec3(tm[0].y, tm[1].y, tm[2].y), vec3(tm[0].z, tm[1].z, tm[2].z));
+
+				vec3 L = tbn_inv * (u_lightPosition - w_pos) - 1.0;
+				vec3 mapN = normalize(texture2D(normalMap, v_texcoord).rgb * 2.0 - 1.0);
+				float kd = max (dot(L, mapN), 0.0);
+
+				vec3 color     = texture2D(diffuseMap, v_texcoord.st).rgb * u_lightColor.rgb * v_color.rgb;
+    			vec3 light_col = (0.0 + kd) * color.rgb * u_lightColor.rgb * v_color.rgb;
+
+				vec4 diffuseMapColor = texture2D(diffuseMap, v_texcoord);
+    			vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb * u_lightColor.rgb * v_color.rgb;
+
+				vec3 surfaceToViewDirection = normalize(v_surfaceToView);
+    			vec3 halfVector = normalize(u_lightDirection + surfaceToViewDirection);
+
+				float fakeLight = dot(u_lightDirection, N) * .2 + .5;
+    			float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
+
+				gl_FragColor = vec4(
+					emissive +
+					ambient * u_ambientLight +
+					 effectiveDiffuse * fakeLight +
+					specular * clamp(light_col, 0.0, 1.0),
+					1);
+			}
+		</script>
+
 		<script id="skybox-vertex-shader" type="x-shader/x-vertex">
 			attribute vec4 a_position;
 			varying vec4 v_position;
@@ -114,10 +211,12 @@
 			uniform samplerCube u_skybox;
 			uniform mat4 u_viewDirectionProjectionInverse;
 
+			uniform vec3 u_lightColor;
+
 			varying vec4 v_position;
 			void main() {
 				vec4 t = u_viewDirectionProjectionInverse * v_position;
-				gl_FragColor = textureCube(u_skybox, normalize(t.xyz / t.w));
+				gl_FragColor = textureCube(u_skybox, normalize(t.xyz / t.w)) * vec4(u_lightColor,1);
 			}
 		</script>
 
@@ -152,6 +251,7 @@
 
 			// The texture.
 			uniform samplerCube u_texture;
+			uniform vec3 u_lightColor;
 
 			// The position of the camera
 			uniform vec3 u_worldCameraPosition;
@@ -161,7 +261,7 @@
 			  vec3 eyeToSurfaceDir = normalize(v_worldPosition - u_worldCameraPosition);
 			  vec3 direction = reflect(eyeToSurfaceDir,worldNormal);
 
-			  gl_FragColor = textureCube(u_texture, direction);
+			  gl_FragColor = textureCube(u_texture, direction) * vec4(u_lightColor,1);
 			}
 		</script>
 
@@ -180,22 +280,31 @@
 				</div>
 				<p></p>
 				<div>
-					Progetto sviluppato per il corso di Computer Graphics UniBO
+					Progetto sviluppato per il corso di Computer Graphics UniBO A.A 2021/2022.
 				</div>
-
 				<br>
 
-				<div id ="gui">
-				</div>
+
+
 			</div>
 
+			<div class="menu column2">
+				<details>
+					<summary class="title">
+						Settings
+					</summary>
+					<div id ="gui">
+					</div>
 
+				</details>
+
+			</div>
 
 			<div class="menu column2">
 				<div class = "menu-row">
 					<details>
 						<summary class="title">
-							Camera controls
+							Camera
 						</summary>
 
 						<button class="btn" onmouseup="scene.keys['w']=false;" onmousedown="scene.keys['w']=true;">
@@ -215,41 +324,36 @@
 								Keyboard
 							</summary>
 							<p style="text-align: left">
-								W/S : move forward/backward <br>
-								A/D : move left/right
+								<b>W/S</b> : move forward/backward <br>
+								<b>A/D</b> : move left/right <br>
+								<b>Q/E</b> : move up/down <br>
+								<b>U/J</b> : move up/down <br>
+								<b>H/K</b> : cant movement <br>
+								<b>Arrow UP/DOWN</b> : tilt movement<br>
+								<b>Arrow LEFT/RIGHT</b> : pan movement <br>
+								<b>R : realign camera</b>
+
+
 							</p>
 
 						</details>
 
+						<details>
+							<summary class="title">
+								Touch
+							</summary>
+							<div>
+								<canvas id="canvas2d" style="max-width: 190px; max-height:150px;"></canvas>
+							</div>
+
+						</details>
 					</details>
 
-
 				</div>
 			</div>
 
-			<div class="menu column2">
-				<div class="menu-row">
-
-					<div class="title">
-						Light Control
-					</div>
 
 
-
-					<div>
-						X <label for="x_light"></label><input type="range" min="-100" max="100" value="0" class="slider" id="x_light">
-						R <label for="r_light"></label><input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="r_light">
-					</div>
-					<div>
-						Y <label for="y_light"></label><input type="range" min="-100" max="100" value="0" class="slider" id="y_light">
-						G <label for="g_light"></label><input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="g_light">
-					</div>
-					<div>
-						Z <label for="z_light"></label><input type="range" min="-100" max="100" value="0" class="slider" id="z_light">
-						B <label for="b_light"></label><input type="range" min="0" max="1" value="1" step="0.1" class="slider" id="b_light">
-					</div>
-				</div>
-			</div>
 
 		</div>
 

@@ -4,6 +4,7 @@ class Scene {
         // Getting WebGL context from canvas
         this.canvas = document.getElementById(canvas_id);
         this.gl = this.canvas.getContext("webgl");
+        this.gl.getExtension("OES_standard_derivatives");
 
         if (!this.gl) { // Check if WebGL is supported
             alert("WebGL not supported!");
@@ -13,8 +14,10 @@ class Scene {
         this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
         this.gl.enable(this.gl.DEPTH_TEST);
 
-        // Compiling vertex and fragment shader
-        this.program = webglUtils.createProgramInfo(this.gl, ["3d-vertex-shader", "3d-fragment-shader"])
+        let base = webglUtils.createProgramInfo(this.gl, ["base-vertex-shader", "base-fragment-shader"])
+        let bump = webglUtils.createProgramInfo(this.gl, ["bump-vertex-shader", "bump-fragment-shader"])
+
+        this.program = base;
 
         this.mesh_list = []; // Array used to store all the mesh used in the scene
         this.load_mesh_json(json_path).then(() => {});
@@ -26,8 +29,7 @@ class Scene {
         this.keys = {};
 
         // Light used in the scene
-        this.light = {ambient: [0.1,0.1,0.1], color : [1.0, 1.0, 1.0], direction : [1,5,1]}
-
+        this.light = {ambient: [0.1,0.1,0.1], color : [1.0, 1.0, 1.0], direction : [4,2,-2], position: [4,2,-2]};
         this.prepareSkybox();
 
     }
@@ -185,6 +187,14 @@ class Scene {
         this.skybox.enable = !this.skybox.enable;
     }
 
+    toggle_program(){
+        this.selected_program = this.selected_program+1 % 2
+
+        switch (this.selected_program){
+
+        }
+    }
+
 
 }
 
@@ -220,6 +230,7 @@ function draw() {
         webglUtils.setUniforms(scene.skybox.programInfo, {
             u_viewDirectionProjectionInverse: m4.inverse(m4.multiply(proj, view)),
             u_skybox: scene.skybox.texture,
+            u_lightColor: scene.light.color,
         });
         webglUtils.drawBufferInfo(scene.gl, scene.skybox.quadBufferInfo);
     }

@@ -11,7 +11,6 @@ class AnimatedCamera extends Camera{
     }
 
     #move(){
-
         // If the camera is in one of the axis
         // then change direction
         if (this.angle >89 || this.angle < 1){

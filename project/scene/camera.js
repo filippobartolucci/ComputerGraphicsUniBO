@@ -83,6 +83,13 @@ class Camera {
         return m4.inverse(cameraMatrix); // ViewMatrix
     };
 
+    // Return lookAt
+    getLookAt() {
+        const look = m4.addVectors(this.position, this.forward);
+        return m4.lookAt(this.position, look, this.up);
+
+    };
+
     // Return this.position
     getPosition(){
         return this.position
