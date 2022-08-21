@@ -2,7 +2,7 @@
 
 function main(){
     // Creating a new scene from a file
-    window["scene"] = new Scene("canvas", "./scene/scene2.json");
+    window["scene"] = new Scene("canvas", "./scene/scene1.json");
 
 
 

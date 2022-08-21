@@ -11,18 +11,94 @@ class Scene {
             throw new Error("WebGL not supported!");
         }
 
-        this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+        this.ext = this.gl.getExtension('WEBGL_depth_texture');
+        if (!this.ext) {
+            return alert('need WEBGL_depth_texture');  // eslint-disable-line
+        }
+
         this.gl.enable(this.gl.DEPTH_TEST);
+
+        this.textureProgramInfo = webglUtils.createProgramInfo(this.gl, ['vertex-shader-3d', 'fragment-shader-3d']);
+        this.colorProgramInfo = webglUtils.createProgramInfo(this.gl, ['color-vertex-shader', 'color-fragment-shader']);
+
 
         let base = webglUtils.createProgramInfo(this.gl, ["base-vertex-shader", "base-fragment-shader"])
         let bump = webglUtils.createProgramInfo(this.gl, ["bump-vertex-shader", "bump-fragment-shader"])
 
         this.program = base;
 
+
+
+        this.shadow = [];
+        this.shadow.depthTexture = this.gl.createTexture();
+        this.shadow.depthTextureSize = 512;
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.shadow.depthTexture);
+        this.gl.texImage2D(
+            this.gl.TEXTURE_2D,      // target
+            0,                  // mip level
+            this.gl.DEPTH_COMPONENT, // internal format
+            this.shadow.depthTextureSize,   // width
+            this.shadow.depthTextureSize,   // height
+            0,                  // border
+            this.gl.DEPTH_COMPONENT, // format
+            this.gl.UNSIGNED_INT,    // type
+            null);              // data
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+
+        this.shadow.depthFramebuffer = this.gl.createFramebuffer();
+        this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.shadow.depthFramebuffer);
+        this.gl.framebufferTexture2D(
+            this.gl.FRAMEBUFFER,       // target
+            this.gl.DEPTH_ATTACHMENT,  // attachment point
+            this.gl.TEXTURE_2D,        // texture target
+            this.shadow.depthTexture,         // texture
+            0);                   // mip level
+
+        // create a color texture of the same size as the depth texture
+        // see article why this is needed_
+        this.shadow.unusedTexture = this.gl.createTexture();
+        this.gl.bindTexture(this.gl.TEXTURE_2D, this.shadow.unusedTexture);
+        this.gl.texImage2D(
+            this.gl.TEXTURE_2D,
+            0,
+            this.gl.RGBA,
+            this.shadow.depthTextureSize,
+            this.shadow.depthTextureSize,
+            0,
+            this.gl.RGBA,
+            this.gl.UNSIGNED_BYTE,
+            null,
+        );
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+        this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+
+        // attach it to the framebuffer
+        this.gl.framebufferTexture2D(
+            this.gl.FRAMEBUFFER,        // target
+            this.gl.COLOR_ATTACHMENT0,  // attachment point
+            this.gl.TEXTURE_2D,         // texture target
+            this.shadow.unusedTexture,         // texture
+            0);                    // mip level
+
+
+
+
+
+
+
         this.mesh_list = []; // Array used to store all the mesh used in the scene
         this.load_mesh_json(json_path).then(() => {});
 
         this.fov = 60;
+
+        this.projWidth = 2;
+        this.projHeight = 2;
+
         // Creating a camera for this scene
         const position = [10,2,10], target = [0, 2, 0], up = [0, 1, 0];
         this.camera = new Camera(position, target, up);
@@ -31,6 +107,10 @@ class Scene {
         // Light used in the scene
         this.light = {ambient: [0.1,0.1,0.1], color : [1.0, 1.0, 1.0], direction : [4,2,-2], position: [4,2,-2]};
         this.prepareSkybox();
+
+
+
+
 
     }
 
@@ -50,7 +130,7 @@ class Scene {
 
     // Compute the projection matrix
     projectionMatrix(){
-        let fieldOfViewRadians = degToRad(this.fov);
+        let fieldOfViewRadians = degToRad(60);
         let aspect = this.gl.canvas.clientWidth / this.gl.canvas.clientHeight;
         let zmin=0.1;
         return m4.perspective(fieldOfViewRadians, aspect, zmin, 200);
@@ -204,36 +284,83 @@ function draw() {
     resizeCanvasToDisplaySize(scene.gl.canvas);
     scene.gl.viewport(0, 0, scene.gl.canvas.width, scene.gl.canvas.height);
 
+    scene.gl.enable(scene.gl.CULL_FACE);
+    scene.gl.enable(scene.gl.DEPTH_TEST);
+
+    const lightWorldMatrix = m4.lookAt(
+        scene.light.position,          // position
+        scene.light.direction, // target
+        [0, 1, 0],                                              // up
+    );
+
+    const lightProjectionMatrix = m4.perspective(
+            degToRad(scene.fov),
+            scene.projWidth / scene.projHeight,
+            0.5,  // near
+            15)   // far
+
+    // draw to the depth texture
+    scene.gl.bindFramebuffer(scene.gl.FRAMEBUFFER, scene.shadow.depthFramebuffer);
+    scene.gl.viewport(0, 0, scene.shadow.depthTextureSize, scene.shadow.depthTextureSize);
+    scene.gl.clear(scene.gl.COLOR_BUFFER_BIT | scene.gl.DEPTH_BUFFER_BIT);
+
     // Updating the camera position
     scene.key_controller();
 
     // Getting the projection matrix from the scene,
     // calculated only once
+
+    scene.mesh_list.forEach(m => {
+        m.drawScene(scene.gl, lightProjectionMatrix, lightWorldMatrix, m4.identity(), lightWorldMatrix, scene.colorProgramInfo,scene.camera,scene.shadow.depthTexture);
+    });
+
+    // now draw scene to the canvas projecting the depth texture into the scene
+    scene.gl.bindFramebuffer(scene.gl.FRAMEBUFFER, null);
+    scene.gl.viewport(0, 0, scene.gl.canvas.width, scene.gl.canvas.height);
+    scene.gl.clearColor(0, 0, 0, 1);
+    scene.gl.clear(scene.gl.COLOR_BUFFER_BIT | scene.gl.DEPTH_BUFFER_BIT);
+
+    let textureMatrix = m4.identity();
+    textureMatrix = m4.translate(textureMatrix, 0.5, 0.5, 0.5);
+    textureMatrix = m4.scale(textureMatrix, 0.5, 0.5, 0.5);
+    textureMatrix = m4.multiply(textureMatrix, lightProjectionMatrix);
+    // use the inverse of this world matrix to make
+    // a matrix that will transform other positions
+    // to be relative this world space.
+    textureMatrix = m4.multiply(
+        textureMatrix,
+        m4.inverse(lightWorldMatrix));
+
     let proj = scene.projectionMatrix()
     let view = scene.camera.getViewMatrix()
 
-    scene.gl.depthFunc(scene.gl.LESS);
-
     scene.mesh_list.forEach(m => {
-        m.render(scene.gl, scene.program, proj, view, scene.camera, scene.light);
+        m.drawScene(scene.gl, proj, scene.camera.getLookAt(), textureMatrix, lightWorldMatrix, scene.textureProgramInfo, scene.camera, scene.shadow.depthTexture);
     });
 
-    if (scene.skybox.enable){
-        // Removing translation from view matrix
-        view[12] = 0;
-        view[13] = 0;
-        view[14] = 0;
-        scene.gl.depthFunc(scene.gl.LEQUAL);
-        scene.gl.useProgram(scene.skybox.programInfo.program);
 
-        webglUtils.setBuffersAndAttributes(scene.gl, scene.skybox.programInfo, scene.skybox.quadBufferInfo);
-        webglUtils.setUniforms(scene.skybox.programInfo, {
-            u_viewDirectionProjectionInverse: m4.inverse(m4.multiply(proj, view)),
-            u_skybox: scene.skybox.texture,
-            u_lightColor: scene.light.color,
-        });
-        webglUtils.drawBufferInfo(scene.gl, scene.skybox.quadBufferInfo);
-    }
+
+    // scene.mesh_list.forEach(m => {
+    //     m.render(scene.gl, scene.program, proj, view, scene.camera, scene.light);
+    // });
+    //
+    // if (scene.skybox.enable){
+    //     // Removing translation from view matrix
+    //     view[12] = 0;
+    //     view[13] = 0;
+    //     view[14] = 0;
+    //     scene.gl.depthFunc(scene.gl.LEQUAL);
+    //     scene.gl.useProgram(scene.skybox.programInfo.program);
+    //
+    //     webglUtils.setBuffersAndAttributes(scene.gl, scene.skybox.programInfo, scene.skybox.quadBufferInfo);
+    //     webglUtils.setUniforms(scene.skybox.programInfo, {
+    //         u_viewDirectionProjectionInverse: m4.inverse(m4.multiply(proj, view)),
+    //         u_skybox: scene.skybox.texture,
+    //         u_lightColor: scene.light.color,
+    //     });
+    //     webglUtils.drawBufferInfo(scene.gl, scene.skybox.quadBufferInfo);
+    //     scene.gl.depthFunc(scene.gl.LESS);
+    // }
 
     requestAnimationFrame(draw)
 }

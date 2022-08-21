@@ -104,4 +104,52 @@ class MeshObj {
             webglUtils.drawBufferInfo(gl, bufferInfo);
         }
     }
+
+
+    drawScene(gl,
+        projectionMatrix,
+        cameraMatrix,
+        textureMatrix,
+        lightWorldMatrix,
+        programInfo,camera, depthTexture) {
+
+        if (!this.ready) return;
+        // Make a view matrix from the camera matrix.
+        const viewMatrix = m4.inverse(cameraMatrix);
+
+        gl.useProgram(programInfo.program);
+
+        // set uniforms that are the same for both the sphere and plane
+        // note: any values with no corresponding uniform in the shader
+        // are ignored.
+        webglUtils.setUniforms(programInfo, {
+            u_view: viewMatrix,
+            u_projection: projectionMatrix,
+            u_bias: -0.005,
+            u_textureMatrix: textureMatrix,
+            u_projectedTexture: depthTexture,
+            u_reverseLightDirection: lightWorldMatrix.slice(8, 11),
+        });
+
+
+        for (const {bufferInfo, material} of this.mesh.parts) {
+            // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
+            webglUtils.setBuffersAndAttributes(gl, programInfo, bufferInfo);
+            // calls gl.uniform
+            webglUtils.setUniforms(programInfo, {
+                u_world: m4.identity(),
+                u_colorMult: [0.5, 0.5, 1, 1],
+                u_color: [1, 0, 0, 1]
+               ,
+            });
+            // calls gl.drawArrays or gl.drawElements
+            webglUtils.drawBufferInfo(gl, bufferInfo);
+        }
+
+
+
+
+    }
+
+
 }
