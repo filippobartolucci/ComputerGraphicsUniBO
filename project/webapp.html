@@ -254,11 +254,11 @@
 			uniform vec3 u_lightColor;
 
 			// The position of the camera
-			uniform vec3 u_worldCameraPosition;
+			uniform vec3 u_viewWorldPosition;
 
 			void main() {
 			  vec3 worldNormal = normalize(v_worldNormal);
-			  vec3 eyeToSurfaceDir = normalize(v_worldPosition - u_worldCameraPosition);
+			  vec3 eyeToSurfaceDir = normalize(v_worldPosition - u_viewWorldPosition);
 			  vec3 direction = reflect(eyeToSurfaceDir,worldNormal);
 
 			  gl_FragColor = textureCube(u_texture, direction) * vec4(u_lightColor,1);
@@ -271,6 +271,8 @@
 			attribute vec4 a_position;
 			attribute vec2 a_texcoord;
 			attribute vec3 a_normal;
+			attribute vec4 a_color;
+
 
 			uniform mat4 u_projection;
 			uniform mat4 u_view;
@@ -280,6 +282,7 @@
 			varying vec2 v_texcoord;
 			varying vec4 v_projectedTexcoord;
 			varying vec3 v_normal;
+			varying vec4 v_color;
 
 			void main() {
 				// Multiply the position by the matrix.
@@ -294,6 +297,8 @@
 
 				// orient the normals and pass to the fragment shader
 				v_normal = mat3(u_world) * a_normal;
+
+				v_color = a_color;
 			}
 		</script>
 		<!-- fragment shader -->
@@ -304,12 +309,23 @@
 			varying vec2 v_texcoord;
 			varying vec4 v_projectedTexcoord;
 			varying vec3 v_normal;
+			varying vec4 v_color;
 
 			uniform vec4 u_colorMult;
 			uniform sampler2D u_texture;
 			uniform sampler2D u_projectedTexture;
 			uniform float u_bias;
 			uniform vec3 u_reverseLightDirection;
+
+			// Material Properties
+			uniform sampler2D diffuseMap;
+			uniform sampler2D normalMap;
+			uniform vec3 diffuse;
+			uniform vec3 ambient;
+			uniform vec3 emissive;
+			uniform vec3 specular;
+			uniform float shininess;
+			uniform float opacity;
 
 			void main() {
 				// because v_normal is a varying it's interpolated
@@ -332,10 +348,15 @@
 				float projectedDepth = texture2D(u_projectedTexture, projectedTexcoord.xy).r;
 				float shadowLight = (inRange && projectedDepth <= currentDepth) ? 0.0 : 1.0;
 
+				vec4 diffuseMapColor = texture2D(diffuseMap, v_texcoord);
+    			vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb  * v_color.rgb;
+    			float effectiveOpacity = opacity * diffuseMapColor.a * v_color.a;
+
 				vec4 texColor = texture2D(u_texture, v_texcoord) * u_colorMult;
-					gl_FragColor = vec4(
-					texColor.rgb * light * shadowLight,
-					texColor.a);
+
+				gl_FragColor = vec4(
+					effectiveDiffuse.rgb * light * shadowLight,
+					effectiveOpacity);
 			}
 		</script>
 		<!-- vertex shader -->

@@ -2,10 +2,6 @@ function degToRad(d) {
     return d * Math.PI / 180;
 }
 
-function radToDeg(r) {
-    return r * 180 / Math.PI;
-}
-
 function isPowerOf2(value) {
     return (value & (value - 1)) === 0;
 }
@@ -61,15 +57,22 @@ function createXYQuadVertices() {
 function add_dat_gui(scene){
     let gui = new dat.gui.GUI({autoPlace: false});
 
+    scene['Switch camera'] = function () {
+        scene.switch_camera()
+    };
+    gui.add(scene, 'Switch camera');
+
     scene['Toggle skybox'] = function () {
         scene.toggle_skybox()
     };
     gui.add(scene, 'Toggle skybox');
 
-    scene['Switch camera'] = function () {
-        scene.switch_camera()
+    scene['Toggle shadows'] = function () {
+        scene.toggle_shadows()
     };
-    gui.add(scene, 'Switch camera');
+    gui.add(scene, 'Toggle shadows');
+
+
 
 
     let light_folder = gui.addFolder('Light');
@@ -88,6 +91,13 @@ function add_dat_gui(scene){
     light_color.add(scene.light.color, 0).min(0.1).max(1).step(0.05);
     light_color.add(scene.light.color, 1).min(0.1).max(1).step(0.05);
     light_color.add(scene.light.color, 2).min(0.1).max(1).step(0.05);
+
+    let shadow_folder = gui.addFolder('Shadow frustum');
+    shadow_folder.add(scene.shadow, "fov").min(30).max(180).step(15);
+    shadow_folder.add(scene.shadow, "projWidth").min(1).max(10).step(1);
+    shadow_folder.add(scene.shadow, "projHeight").min(1).max(10).step(1);
+    shadow_folder.add(scene.shadow, "zFarProj").min(1).max(30).step(1);
+    shadow_folder.add(scene.shadow, "bias").min(-0.001).max(0).step(0.0001);
 
     document.getElementById("gui").append(gui.domElement)
 
@@ -194,3 +204,7 @@ function canvas2DController(){
     canvas.onmouseup=touchUp;
 
 }
+
+
+
+

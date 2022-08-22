@@ -109,37 +109,29 @@ class Mirror{
         this.ready = true;
     }
 
-    render(gl, program, projectionMatrix, viewMatrix, camera, light){
+    render(gl, programInfo, uniforms){
         if (!this.ready) return;    // waiting for async functions to complete
 
-        let u_texture = this.texture;
-        // compute the world matrix
-        let u_world = m4.identity();
-
-        const sharedUniforms = {
-            u_view: viewMatrix,
-            u_projection: projectionMatrix,
-            u_world: u_world,
-            u_lightColor: light.color,
-            u_worldCameraPosition: camera.getPosition()
-        };
 
         gl.useProgram(this.programInfo.program);
-        webglUtils.setUniforms(this.programInfo, sharedUniforms);     // calls gl.uniform
+        webglUtils.setUniforms(this.programInfo, uniforms);     // calls gl.uniform
+
+        let u_world = m4.identity();
+        let u_texture = this.texture;
 
         for (const {bufferInfo, material} of this.mesh.parts) {
-
             // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
             webglUtils.setBuffersAndAttributes(gl, this.programInfo, bufferInfo);
             // calls gl.uniform
             webglUtils.setUniforms(this.programInfo, {
+                u_world,
                 u_texture,
-            });
+                u_lightColor: [1,1,1],
+            }, material);
             // calls gl.drawArrays or gl.drawElements
             webglUtils.drawBufferInfo(gl, bufferInfo);
         }
     }
-
 
 
 }

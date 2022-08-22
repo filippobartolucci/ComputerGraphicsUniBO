@@ -70,20 +70,11 @@ class MeshObj {
         });
     }
 
-    render(gl, programInfo, projectionMatrix, viewMatrix, camera, light){
+    render(gl, programInfo, uniforms){
         if (!this.ready) return;    // waiting for async functions to complete
 
-        const sharedUniforms = {
-            u_ambientLight: light.ambient,                      // Ambient
-            u_lightDirection: m4.normalize(light.direction),    // Light Direction
-            u_lightColor: light.color,                          // Light Color
-            u_view: viewMatrix,                                 // View Matrix
-            u_projection: projectionMatrix,                     // Projection Matrix
-            u_viewWorldPosition: camera.getPosition()           // Camera position
-        };
-
         gl.useProgram(programInfo.program);
-        webglUtils.setUniforms(programInfo, sharedUniforms);     // calls gl.uniform
+        webglUtils.setUniforms(programInfo, uniforms);     // calls gl.uniform
 
         // compute the world matrix
         let u_world = m4.identity()
@@ -92,64 +83,16 @@ class MeshObj {
             u_world = m4.yRotate(u_world, degToRad(this.angle));
             this.angle = this.angle === 360? 0 : this.angle+5;
         }
+
         for (const {bufferInfo, material} of this.mesh.parts) {
             // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
             webglUtils.setBuffersAndAttributes(gl, programInfo, bufferInfo);
             // calls gl.uniform
             webglUtils.setUniforms(programInfo, {
                 u_world,
-                u_lightPosition: (light.position),
             }, material);
             // calls gl.drawArrays or gl.drawElements
             webglUtils.drawBufferInfo(gl, bufferInfo);
         }
     }
-
-
-    drawScene(gl,
-        projectionMatrix,
-        cameraMatrix,
-        textureMatrix,
-        lightWorldMatrix,
-        programInfo,camera, depthTexture) {
-
-        if (!this.ready) return;
-        // Make a view matrix from the camera matrix.
-        const viewMatrix = m4.inverse(cameraMatrix);
-
-        gl.useProgram(programInfo.program);
-
-        // set uniforms that are the same for both the sphere and plane
-        // note: any values with no corresponding uniform in the shader
-        // are ignored.
-        webglUtils.setUniforms(programInfo, {
-            u_view: viewMatrix,
-            u_projection: projectionMatrix,
-            u_bias: -0.005,
-            u_textureMatrix: textureMatrix,
-            u_projectedTexture: depthTexture,
-            u_reverseLightDirection: lightWorldMatrix.slice(8, 11),
-        });
-
-
-        for (const {bufferInfo, material} of this.mesh.parts) {
-            // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
-            webglUtils.setBuffersAndAttributes(gl, programInfo, bufferInfo);
-            // calls gl.uniform
-            webglUtils.setUniforms(programInfo, {
-                u_world: m4.identity(),
-                u_colorMult: [0.5, 0.5, 1, 1],
-                u_color: [1, 0, 0, 1]
-               ,
-            });
-            // calls gl.drawArrays or gl.drawElements
-            webglUtils.drawBufferInfo(gl, bufferInfo);
-        }
-
-
-
-
-    }
-
-
 }
