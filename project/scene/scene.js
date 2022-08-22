@@ -201,7 +201,7 @@ class Scene {
 
         // Shadow map texture
         this.shadow.depthTexture = this.gl.createTexture();
-        this.shadow.depthTextureSize = 2048; // Texture resolution
+        this.shadow.depthTextureSize = 4096; // Texture resolution
         this.gl.bindTexture(this.gl.TEXTURE_2D, this.shadow.depthTexture);
         this.gl.texImage2D(
             this.gl.TEXTURE_2D,                 // target
@@ -262,12 +262,11 @@ function draw() {
     let view = scene.camera.getViewMatrix()
 
     function bindFrameBufferNull(){
-        // now draw scene to the canvas projecting the depth texture into the scene
+        // draw scene to the canvas projecting the depth texture into the scene
         scene.gl.bindFramebuffer(scene.gl.FRAMEBUFFER, null);
         scene.gl.viewport(0, 0, scene.gl.canvas.width, scene.gl.canvas.height);
         scene.gl.clearColor(0, 0, 0, 1);
         scene.gl.clear(scene.gl.COLOR_BUFFER_BIT | scene.gl.DEPTH_BUFFER_BIT);
-
     }
 
     if(scene.shadow.enable){
@@ -316,8 +315,8 @@ function draw() {
 
 
         sharedUniforms = {
-            u_view: scene.camera.getViewMatrix(),                  // View Matrix
-            u_projection: proj,                   // Projection Matrix
+            u_view: scene.camera.getViewMatrix(),
+            u_projection: proj,
             u_bias: scene.shadow.bias,
             u_textureMatrix: textureMatrix,
             u_projectedTexture: scene.shadow.depthTexture,
@@ -325,60 +324,55 @@ function draw() {
             u_worldCameraPosition: scene.camera.getPosition(),
         };
 
-
         scene.mesh_list.forEach(m => {
             m.render(scene.gl, scene.textureProgramInfo, sharedUniforms);
         });
 
-        scene.gl.useProgram(scene.colorProgramInfo.program);
+        if (scene.shadow.showFrustum){
+            scene.gl.useProgram(scene.colorProgramInfo.program);
+            const cubeLinesBufferInfo = webglUtils.createBufferInfoFromArrays(scene.gl, {
+                position: [
+                    -1, -1, -1,
+                    1, -1, -1,
+                    -1,  1, -1,
+                    1,  1, -1,
+                    -1, -1,  1,
+                    1, -1,  1,
+                    -1,  1,  1,
+                    1,  1,  1,
+                ],
+                indices: [
+                    0, 1,
+                    1, 3,
+                    3, 2,
+                    2, 0,
 
+                    4, 5,
+                    5, 7,
+                    7, 6,
+                    6, 4,
 
-        const cubeLinesBufferInfo = webglUtils.createBufferInfoFromArrays(scene.gl, {
-            position: [
-                -1, -1, -1,
-                1, -1, -1,
-                -1,  1, -1,
-                1,  1, -1,
-                -1, -1,  1,
-                1, -1,  1,
-                -1,  1,  1,
-                1,  1,  1,
-            ],
-            indices: [
-                0, 1,
-                1, 3,
-                3, 2,
-                2, 0,
+                    0, 4,
+                    1, 5,
+                    3, 7,
+                    2, 6,
+                ],
+            });
 
-                4, 5,
-                5, 7,
-                7, 6,
-                6, 4,
+            webglUtils.setBuffersAndAttributes(scene.gl, scene.colorProgramInfo, cubeLinesBufferInfo);
 
-                0, 4,
-                1, 5,
-                3, 7,
-                2, 6,
-            ],
-        });
+            const mat = m4.multiply(
+                lightWorldMatrix, m4.inverse(lightProjectionMatrix));
 
+            webglUtils.setUniforms(scene.colorProgramInfo, {
+                u_color: [1, 1, 1, 1],
+                u_view: view,
+                u_projection: proj,
+                u_world: mat,
+            });
 
-        // Setup all the needed attributes.
-        webglUtils.setBuffersAndAttributes(scene.gl, scene.colorProgramInfo, cubeLinesBufferInfo);
-
-        const mat = m4.multiply(
-            lightWorldMatrix, m4.inverse(lightProjectionMatrix));
-
-        // Set the uniforms we just computed
-        webglUtils.setUniforms(scene.colorProgramInfo, {
-            u_color: [1, 1, 1, 1],
-            u_view: view,
-            u_projection: proj,
-            u_world: mat,
-        });
-
-        // calls gl.drawArrays or gl.drawElements
-        webglUtils.drawBufferInfo(scene.gl, cubeLinesBufferInfo, scene.gl.LINES);
+            webglUtils.drawBufferInfo(scene.gl, cubeLinesBufferInfo, scene.gl.LINES);
+        }
 
     }else{
         bindFrameBufferNull()

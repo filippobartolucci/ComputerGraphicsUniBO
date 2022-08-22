@@ -79,7 +79,7 @@ class MeshObj {
         // compute the world matrix
         let u_world = m4.identity()
 
-        if (this.rotate === true){
+        if (this.rotate === true && uniforms.u_textureMatrix !== m4.identity() ){
             u_world = m4.yRotate(u_world, degToRad(this.angle));
             this.angle = this.angle === 360? 0 : this.angle+5;
         }
