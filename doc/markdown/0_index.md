@@ -4,7 +4,6 @@ author: Filippo Bartolucci
 date: A.A. 2021-2022
 ---
 
-
 # Indice
 
 * [Progetto](#progetto)

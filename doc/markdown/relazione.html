@@ -17,11 +17,8 @@
     body {
       margin: 0 auto;
       max-width: 36em;
-      padding-left: 50px;
-      padding-right: 50px;
-      padding-top: 50px;
-      padding-bottom: 50px;
-      hyphens: auto;
+		padding: 50px;
+		hyphens: auto;
       overflow-wrap: break-word;
       text-rendering: optimizeLegibility;
       font-kerning: normal;
@@ -319,7 +316,7 @@ perspective della libreria m4.js.</p>
 <p>Funzione che legge gli input da tastiera e chiama le funzioni di
 movimento della camera a ogni tasto. La funzione è stata realizzata in
 modo tale da permettere di fare più movimenti in contemporanea. Viene
-richiamata ogni volta che deve venire disegnato un frame.</p>
+richiamata ogni volta che deve essere disegnato un frame.</p>
 <h3 id="switch_camera">switch_camera(){</h3>
 <p>Passa dalla camera libera a quella animata e viceversa.</p>
 <h3 id="async-prepareskybox">async prepareSkybox()</h3>
@@ -368,6 +365,11 @@ caratteristiche:</p>
 <li>luce diffusa</li>
 <li>specular lightning</li>
 </ul>
+<figure>
+<img src="base.png" title="Scena disegnata con rendering base"
+alt="Rendering base" />
+<figcaption aria-hidden="true">Rendering base</figcaption>
+</figure>
 <h3 id="rendering-con-ombre">Rendering con ombre</h3>
 <p>La tecnica di rendering avanzato che ho scelto per il mio progetto
 sono le ombre, realizzate con tecnica di shadowmapping.</p>
@@ -375,6 +377,11 @@ sono le ombre, realizzate con tecnica di shadowmapping.</p>
 dal punto di vista della luce per generare una shadowmap, poi dal punto
 di vista dell’osservatore utilizzando la shadowmap generata per capire
 se un punto è in ombra o meno.</p>
+<figure>
+<img src="ombre.png" title="Stessa scena disegnata con le obre"
+alt="Rendering con ombre" />
+<figcaption aria-hidden="true">Rendering con ombre</figcaption>
+</figure>
 <p><a href="#indice">Torna all’indice</a></p>
 <hr />
 <h1 id="camera.js">camera.js</h1>
@@ -478,26 +485,8 @@ uniforms)</h3>
 <p>Funzione che disegna l’oggetto utilizzando il programma e le uniform
 specificate nei parametri. Viene chiamata dalla funzione render che si
 occupa di scegliere programInfo e uniform a seconda del tipo di
-rendering scelto.</p>
-<h2 id="mirror.js">mirror.js</h2>
-<p>Un tipo speciale di oggetto è mirror che differisce dagli altri per
-avere una envmap come texture. Per usarlo bisognare settare
-<code>mirror: " true</code> nel json della scena e poi dare un path per
-la envmap da usare (in <code>scene2.json</code> c’è un esempio di
-utilizzo).</p>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode json"><code class="sourceCode json"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>    <span class="fu">{</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;name&quot;</span><span class="fu">:</span> <span class="st">&quot;mirror&quot;</span><span class="fu">,</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;mirror&quot;</span><span class="fu">:</span> <span class="kw">true</span><span class="fu">,</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;obj_source&quot;</span><span class="fu">:</span> <span class="st">&quot;./data/mirror/mirror.obj&quot;</span><span class="fu">,</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;env_path&quot;</span><span class="fu">:</span> <span class="st">&quot;./data/scene2_env/&quot;</span><span class="fu">,</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>      <span class="dt">&quot;position&quot;</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">,</span> <span class="dv">0</span><span class="ot">]</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">}</span></span></code></pre></div>
-<figure>
-<img src="mirror.png" title="Oggetto di tipo mirror"
-alt="Oggetto di tipo mirror" />
-<figcaption aria-hidden="true">Oggetto di tipo mirror</figcaption>
-</figure>
+rendering scelto. Avendo program e uniforms parametrizzato la funzione
+di rendering è unica per tutti le modalità di disegno.</p>
 <ul>
 <li><a href="#indice">Torna all’indice</a></li>
 </ul>
@@ -520,8 +509,5 @@ href="https://webglfundamentals.org/webgl/lessons/webgl-shadows.html">WebGL
 Fundamentals: Shadows</a></li>
 </ul>
 <h2 id="torna-allindice"><a href="#indice">Torna all’indice</a></h2>
-<div style="text-align: right">
-Filippo Bartolucci
-</div>
 </body>
 </html>

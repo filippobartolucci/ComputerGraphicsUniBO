@@ -6,19 +6,18 @@ Quando viene creato un nuovo oggetto scena vengono eseguite le seguenti operazio
 * viene preso il WebGL rendering context dal canvas 
 * impostazione delle dimensioni della viewport
 * compilazione di vertex e fragment shader
-* lettura di un **file json** per ottenere la lista delle mesh da mostrare
-* per ogni elemento mesh nel file json viene creato un nuovo **mesh_obj** e salvato in una lista
+* lettura di un **file json** per ottenere la lista delle mesh da mostrare.
+* per ogni elemento mesh nel file json viene creato un nuovo **mesh_obj** e salvato in una lista interna all'oggetto scena.
 * inizializzazione di **camera**, **keys** (struttura per la gestione dei tasti della tastiera) e **light** (oggetto luce di scena)
 
 L'utilizzo di una classe che contiene tutte le principali variabili da utilizzare
 mi ha permesso di ridurre e semplificare il codice da scrivere e poter usare le
 stesse variabili da passare alle mesh, senza dover ricalcolare le stesse cose più volte.
 
-Le mesh da visualizzare sono salvate in file json caricati al momento. 
-Questo mi ha permesso di creare un sistema più versatile, in quanto posso creare
-scene diverse semplicemente creando più file json.
+Le mesh da visualizzare sono salvate in file json caricato all'avvio. Così facendo posso creare
+scene diverse semplicemente creando più file json diversi.
 
-Di seguito viene riportato un esempio di una scena con una mesh:
+Di seguito viene riportato un esempio di come è scritto un oggetto mesh in una scena:
 ```json
   "meshes":[
     {
@@ -32,16 +31,19 @@ Di seguito viene riportato un esempio di una scena con una mesh:
 
 Per ogni mesh nella lista vengono scritte le seguenti proprietà:
 
-* **name:** nome della mesh
+* **name:** nome della mesh, usato solo per identificare le singole mesh e debug
 * **obj_source:** path al file .obj
 * **mtl_source:** path al file .mtl
-* **position:** posizione della mesh 
+* **position:** posizione della mesh iniziale della mesh. 
+
+I valori in **position** vengono sommati alle coordinate della geometria dell'oggetto, traslandolo così nella posizione desiderata.
+
 
 ## Metodi
 
 ### async load_mesh_json(json_path)
 
-Si occupa di leggere, in modo asincrono, un file json contenente gli oggetti di scena; per ciascuno oggetto viene poi passato a un costruttore di mesh_obj e salvato poi in ```scene.mesh_list```.
+Si occupa di leggere un file json contenente gli oggetti di scena; per ciascuno oggetto viene poi passato a un costruttore di mesh_obj e salvato poi in ```scene.mesh_list```.
 
 ### projectionMatrix()
 
@@ -49,7 +51,7 @@ Calcola la matrice di proiezione passando utilizzando la funzione perspective de
 
 ### key_controller(){
 
-Funzione che legge gli input da tastiera e chiama le funzioni di movimento della camera a ogni tasto. La funzione è stata realizzata in modo tale da permettere di fare più movimenti in contemporanea. Viene richiamata ogni volta che deve venire disegnato un frame.
+Funzione che legge gli input da tastiera e chiama le funzioni di movimento della camera a ogni tasto. La funzione è stata realizzata in modo tale da permettere di fare più movimenti in contemporanea. Viene richiamata ogni volta che deve essere disegnato un frame.
 
 ### switch_camera(){
 
@@ -96,11 +98,17 @@ La scene disegnata con il rendering base ha queste caratteristiche:
 * luce diffusa
 * specular lightning
 
+![Rendering base](base.png "Scena disegnata con rendering base")
+
+
 ### Rendering con ombre
 
 La tecnica di rendering avanzato che ho scelto per il mio progetto sono le ombre, realizzate con tecnica di shadowmapping.
 
 Per poter generare le ombre la scena viene disegnata due volta, prima dal punto di vista della luce per generare una shadowmap, poi dal punto di vista dell'osservatore utilizzando la shadowmap generata per capire se un punto è in ombra o meno.
+
+![Rendering con ombre](ombre.png "Stessa scena disegnata con le obre")
+
 
 [Torna all'indice](#indice)
 

@@ -1,6 +1,6 @@
 # Progetto 
 Questo progetto è stato sviluppo come prova d'esame per il corso "Computer Graphics A.A. 2021/2022".
-L'obbiettivo è sviluppare una "3D-WebApp" usando WebGL (HTML5, CSS e contesto webgl), linguaggio JavaScript e OpenGL ES SL con browser Chrome.
+L'obbiettivo è sviluppare una "3D-WebApp" usando WebGL (HTML5, CSS e contesto webgl), linguaggio JavaScript e OpenGL ES SL.
 
 ![Rendering di una scena](scena1.png "")
 
@@ -12,7 +12,7 @@ I file che lo compongono sono i seguenti:
 * **camera.js:** classe che si occupa di gestire la camera e i suoi movimenti nello spazio
 * **animated_camera.js:** camera 3D che si muove in automatico lungo un arco di circonferenza
 * **mesh_obj:** classe per la gestione delle mesh
-* **main:** entry point del programma.
+* **main.js:** entry point del programma.
 
 [Torna all'indice](#indice)
 
