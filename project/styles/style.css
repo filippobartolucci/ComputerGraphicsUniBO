@@ -22,7 +22,7 @@
     clear: both;
 }
 
-@media screen and (max-width: 720px) {
+@media screen and (max-width: 600px) {
     .column1 {
         width: 100%;
     }
@@ -35,7 +35,7 @@
     }
 
     #canvas{
-        max-height: 50vh;
+        max-height: 30vh;
     }
 }
 

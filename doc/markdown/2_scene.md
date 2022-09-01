@@ -89,6 +89,8 @@ Funzione separata dalla classe Scene per questioni di scope. Esegue le seguenti 
   * esegue il rendering della scena con ombre.
   * esegue il rendering della scena senza ombre.
 * a seconda del valore di ```scene.skybox.enable``` disegna o meno lo skybox.
+
+Per il render è stato attivato ``gl.BLEND`` quindi, se un materiale di un oggetto ha opacità minore di uno, questo verrà disegnato con una trasparenza.
   
 ### Rendering base
 

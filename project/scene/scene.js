@@ -16,11 +16,11 @@ class Scene {
             return alert('need WEBGL_depth_texture');  // eslint-disable-line
         }
 
+        this.path = json_path;
+
         this.gl.enable(this.gl.DEPTH_TEST);
 
-        let base = webglUtils.createProgramInfo(this.gl, ["base-vertex-shader", "base-fragment-shader"])
-        let bump = webglUtils.createProgramInfo(this.gl, ["bump-vertex-shader", "bump-fragment-shader"])
-        this.program = base;
+        this.program = webglUtils.createProgramInfo(this.gl, ["base-vertex-shader", "base-fragment-shader"]);
 
         this.prepareSkybox().then(() => {});
         this.prepareShadows().then(() => {});
@@ -246,6 +246,11 @@ class Scene {
         this.shadow.enable = !this.shadow.enable;
     }
 
+    async reload_scene(){
+        this.mesh_list = [];
+        await this.load_mesh_json(this.path);
+    }
+
 }
 
 // Draw everything in the scene on the canvas.
@@ -257,6 +262,8 @@ function draw() {
 
     scene.gl.enable(scene.gl.CULL_FACE);
     scene.gl.enable(scene.gl.DEPTH_TEST);
+    scene.gl.enable(scene.gl.BLEND);
+    scene.gl.blendFunc(scene.gl.SRC_ALPHA, scene.gl.ONE_MINUS_SRC_ALPHA);
 
     let proj = scene.projectionMatrix()
     let view = scene.camera.getViewMatrix()

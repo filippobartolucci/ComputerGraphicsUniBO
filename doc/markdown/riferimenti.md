@@ -7,4 +7,5 @@ Per la realizzazione del progetto, oltre alle slide e al codice visto durante il
 * [WebGL Fundamentals: Shadows](https://webglfundamentals.org/webgl/lessons/webgl-shadows.html)
 
 [Torna all'indice](#indice)
+
 ---

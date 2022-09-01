@@ -42,6 +42,6 @@ Calcola e restituisce la viewMatrix
 ### getPosition()
 Calcola e restituisce la viewMatrix
 
-* [Torna all'indice](#indice)
+[Torna all'indice](#indice)
 
 ---

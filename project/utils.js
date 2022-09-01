@@ -57,6 +57,11 @@ function createXYQuadVertices() {
 function add_dat_gui(scene){
     let gui = new dat.gui.GUI({autoPlace: false});
 
+    scene['Change Scene'] = function () {
+        change_scene()
+    };
+    gui.add(scene, 'Change Scene');
+
     scene['Switch camera'] = function () {
         scene.switch_camera()
     };
@@ -71,6 +76,8 @@ function add_dat_gui(scene){
         scene.toggle_shadows()
     };
     gui.add(scene, 'Toggle shadows');
+
+
 
 
 
@@ -125,9 +132,9 @@ function add_touch_canvas(scene){
             return false;
         }
         let dX=-(e.pageX-scene.mouse.old_x)*2*Math.PI/scene.canvas.width;
-        scene.camera.pan(-dX * 0.1);
+        scene.camera.pan(-dX * 0.2);
         let dY=-(e.pageY-scene.mouse.old_y)*2*Math.PI/scene.canvas.height;
-        scene.camera.tilt(-dY * 0.1);
+        scene.camera.tilt(-dY * 0.2);
 
         scene.mouse.old_x=e.pageX;
         scene.mouse.old_y=e.pageY;
@@ -165,6 +172,18 @@ function canvas2DController(){
     right.rect(64,30,39,39)
     right.closePath()
 
+    const up = new Path2D()
+    up.rect(110,10,45,25)
+    up.closePath()
+
+    const down = new Path2D()
+    down.rect(110,65,45,25)
+    down.closePath()
+
+    context.font = '35px serif';
+    context.fillText('UP', 180, 60);
+    context.fillText('Down', 180, 120);
+
     const image = new Image(150, 150);
     image.onload=function (){
         context.drawImage(this,  0, 0, image.width, image.height);
@@ -194,6 +213,12 @@ function canvas2DController(){
         if(context.isPointInPath(right, XY.x, XY.y)) {
             scene.keys["d"]=true;
         }
+        if(context.isPointInPath(up, XY.x, XY.y)) {
+            scene.keys["q"]=true;
+        }
+        if(context.isPointInPath(down, XY.x, XY.y)) {
+            scene.keys["e"]=true;
+        }
     }
 
     function touchUp(){
@@ -201,13 +226,24 @@ function canvas2DController(){
         scene.keys["a"]=false;
         scene.keys["s"]=false;
         scene.keys["d"]=false;
+        scene.keys["q"]=false;
+        scene.keys["e"]=false;
     }
 
     canvas.addEventListener('touchstart',touchDown,false);
     canvas.addEventListener('touchend',touchUp,false);
     canvas.onmousedown=touchDown;
     canvas.onmouseup=touchUp;
+}
 
+function change_scene(){
+    if (scene.path === "./scene/scene1.json"){
+        scene.path = "./scene/scene2.json"
+        scene.reload_scene().then(() => {})
+    }else{
+        scene.path = "./scene/scene1.json"
+        scene.reload_scene().then(() => {})
+    }
 }
 
 

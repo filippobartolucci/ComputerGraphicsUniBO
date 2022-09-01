@@ -15,6 +15,6 @@ Funzione chiamata dal costruttore dopo che viene letto il file obj. Si occupa de
 Funzione che disegna l'oggetto utilizzando il programma e le uniform specificate nei parametri. Viene chiamata dalla funzione render che si occupa di scegliere programInfo e uniform a seconda del tipo di rendering scelto. Avendo program e uniforms parametrizzato la funzione di rendering è unica per tutti le modalità di disegno.
 
 
-* [Torna all'indice](#indice)
+[Torna all'indice](#indice)
 
 ---

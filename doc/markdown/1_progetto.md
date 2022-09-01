@@ -13,6 +13,22 @@ I file che lo compongono sono i seguenti:
 * **animated_camera.js:** camera 3D che si muove in automatico lungo un arco di circonferenza
 * **mesh_obj:** classe per la gestione delle mesh
 * **main.js:** entry point del programma.
+* **utils.js:** file che contiene funzioni di supporto.
+
+## Interfaccia
+![](interfaccia.png "")
+L’interfaccia dell’applicazione di presenta in due elementi, il canvas per il disegno e una colonna con controlli e impostazioni.
+
+Il menù per le impostazioni del progetto è stato realizzato utilizzando dat.GUI .
+
+Il movimento nella scena può essere gestito attraverso una tastiera oppure tramite touch.
+
+![](controlli.png "")
+I tasti per controllare il movimento sono visibili espandendo il menù laterale, mentre il per il touch è stato inserito un canvas 2D con disegnati alcuni pulsanti che permettono di muoversi.
+
+È anche possibile trascinare, con mouse o tocco, sul canvas per ruotare la camera nella varie direzioni.
+
+![](mouse_drag.gif "")
 
 [Torna all'indice](#indice)
 

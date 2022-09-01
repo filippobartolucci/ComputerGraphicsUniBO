@@ -27,17 +27,12 @@
       "position": [3, 3, 0]
     },
 
+
     {
-      "name":"mirror",
-      "mirror" : true,
-      "obj_source":"./data/mirror/mirror.obj",
-      "env_path":"./data/scene2_env/",
-      "position": [0, 0, 0]
-
+      "name":"lampada",
+      "obj_source":"./data/orologio/orologio.obj",
+      "mtl_source":"./data/orologio/orologio.mtl",
+      "position": [2, -4, 4.7]
     }
-
-
-
-
   ]
 }

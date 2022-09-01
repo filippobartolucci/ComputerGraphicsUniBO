@@ -28,6 +28,6 @@ La ViewMatrix viene ottenuta con questa funzione:
     }
 ```
 
-* [Torna all'indice](#indice)
+[Torna all'indice](#indice)
 
 ---

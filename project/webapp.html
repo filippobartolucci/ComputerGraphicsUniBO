@@ -22,7 +22,6 @@
 		<script src="scene/camera.js" defer></script>
 		<script src="scene/animated_camera.js" defer></script>
 		<script src="scene/mesh_obj.js" defer></script>
-		<script src="scene/mirror.js" defer></script>
 		<script src="utils.js" defer></script>
 		<script src="main.js" defer></script>
 
@@ -56,8 +55,8 @@
 		<script id="base-fragment-shader" type="x-shader/x-fragment">
 			precision highp float;
 
-			varying vec3 v_normal;  	//w_nv
-			varying vec2 v_texcoord; 	//o_uv
+			varying vec3 v_normal;
+			varying vec2 v_texcoord;
 			varying vec4 v_color;
 			varying vec3 v_surfaceToView;
 
@@ -99,102 +98,6 @@
 			}
 		</script>
 
-		<script id="bump-vertex-shader" type="x-shader/x-vertex">
-			attribute vec4 a_position;
-			attribute vec3 a_normal;
-			attribute vec2 a_texcoord;
-			attribute vec4 a_color;
-
-			uniform mat4 u_projection;          // Projection Matrix
-			uniform mat4 u_view;				// Camera View Matrix
-			uniform mat4 u_world;				// World matrix
-			uniform vec3 u_viewWorldPosition;	// Camera position
-
-			varying vec3 v_normal;
-			varying vec3 v_surfaceToView;
-			varying vec2 v_texcoord;
-			varying vec4 v_color;
-			varying vec3 w_pos;
-
-
-			void main() {
-				vec4 world_position = u_world * a_position;  // World transform
-				gl_Position = u_projection * u_view * world_position; // Transform the location of the vertex
-
-				v_surfaceToView = u_viewWorldPosition - world_position.xyz;
-				v_normal = mat3(u_world) * a_normal;
-				v_texcoord = a_texcoord;
-				v_color = a_color;
-				w_pos = world_position.xyz;
-			}
-		</script>
-		<script id="bump-fragment-shader" type="x-shader/x-fragment">
-			#extension GL_OES_standard_derivatives : enable
-			precision highp float;
-
-			varying vec3 v_normal;  	//w_nv
-			varying vec2 v_texcoord; 	//o_uv
-			varying vec4 v_color;
-			varying vec3 v_surfaceToView;
-			varying vec3 w_pos;
-
-
-			// Material Properties
-			uniform sampler2D diffuseMap;
-			uniform sampler2D normalMap;
-			uniform vec3 diffuse;
-			uniform vec3 ambient;
-			uniform vec3 emissive;
-			uniform vec3 specular;
-			uniform float shininess;
-			uniform float opacity;
-
-			// Light Properties
-			uniform vec3 u_lightDirection;
-			uniform vec3 u_lightPosition;
-			uniform vec3 u_lightColor;
-			uniform vec3 u_ambientLight;
-
-			void main () {
-				vec3 normal = normalize(v_normal) * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
-
-				vec3 N = normalize(v_normal);
-				vec3 dp1 = dFdx(w_pos);
-				vec3 dp2 = dFdy(w_pos);
-				vec2 duv1 = dFdx(v_texcoord);
-				vec2 duv2 = dFdy(v_texcoord);
-				vec3 dp2perp = cross(dp2, N);
-				vec3 dp1perp = cross(N, dp1);
-				vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
-				vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
-				float invmax = inversesqrt(max(dot(T,T), dot(B,B)));
-				mat3 tm = mat3(T * invmax, B * invmax, N);
-				mat3  tbn_inv = mat3(vec3(tm[0].x, tm[1].x, tm[2].x), vec3(tm[0].y, tm[1].y, tm[2].y), vec3(tm[0].z, tm[1].z, tm[2].z));
-
-				vec3 L = tbn_inv * (u_lightPosition - w_pos) - 1.0;
-				vec3 mapN = normalize(texture2D(normalMap, v_texcoord).rgb * 2.0 - 1.0);
-				float kd = max (dot(L, mapN), 0.0);
-
-				vec3 color     = texture2D(diffuseMap, v_texcoord.st).rgb * u_lightColor.rgb * v_color.rgb;
-    			vec3 light_col = (0.0 + kd) * color.rgb * u_lightColor.rgb * v_color.rgb;
-
-				vec4 diffuseMapColor = texture2D(diffuseMap, v_texcoord);
-    			vec3 effectiveDiffuse = diffuse * diffuseMapColor.rgb * u_lightColor.rgb * v_color.rgb;
-
-				vec3 surfaceToViewDirection = normalize(v_surfaceToView);
-    			vec3 halfVector = normalize(u_lightDirection + surfaceToViewDirection);
-
-				float fakeLight = dot(u_lightDirection, N) * .2 + .5;
-    			float specularLight = clamp(dot(normal, halfVector), 0.0, 1.0);
-
-				gl_FragColor = vec4(
-					emissive +
-					ambient * u_ambientLight +
-					 effectiveDiffuse * fakeLight +
-					specular * clamp(light_col, 0.0, 1.0),
-					1);
-			}
-		</script>
 
 		<script id="skybox-vertex-shader" type="x-shader/x-vertex">
 			attribute vec4 a_position;
@@ -220,53 +123,7 @@
 			}
 		</script>
 
-		<script id="envmap-vertex-shader" type="x-shader/x-vertex">
-			attribute vec4 a_position;
-			attribute vec3 a_normal;
 
-			uniform mat4 u_projection;
-			uniform mat4 u_view;
-			uniform mat4 u_world;
-
-			varying vec3 v_worldPosition;
-			varying vec3 v_worldNormal;
-
-			void main() {
-			  // Multiply the position by the matrix.
-			  gl_Position = u_projection * u_view * u_world * a_position;
-
-			  // send the view position to the fragment shader
-			  v_worldPosition = (u_world * a_position).xyz;
-
-			  // orient the normals and pass to the fragment shader
-			  v_worldNormal = mat3(u_world) * a_normal;
-			}
-		</script>
-		<script id="envmap-fragment-shader" type="x-shader/x-fragment">
-			precision highp float;
-
-			// Passed in from the vertex shader.
-			varying vec3 v_worldPosition;
-			varying vec3 v_worldNormal;
-
-			// The texture.
-			uniform samplerCube u_texture;
-			uniform vec3 u_lightColor;
-
-			// The position of the camera
-			uniform vec3 u_viewWorldPosition;
-
-			void main() {
-			  vec3 worldNormal = normalize(v_worldNormal);
-			  vec3 eyeToSurfaceDir = normalize(v_worldPosition - u_viewWorldPosition);
-			  vec3 direction = reflect(eyeToSurfaceDir,worldNormal);
-
-			  gl_FragColor = textureCube(u_texture, direction) * vec4(u_lightColor,1);
-			}
-		</script>
-
-
-		<!-- vertex shader -->
 		<script  id="vertex-shader-3d" type="x-shader/x-vertex">
 			attribute vec4 a_position;
 			attribute vec2 a_texcoord;
@@ -301,7 +158,6 @@
 				v_color = a_color;
 			}
 		</script>
-		<!-- fragment shader -->
 		<script  id="fragment-shader-3d" type="x-shader/x-fragment">
 			precision mediump float;
 
@@ -359,7 +215,8 @@
 					effectiveOpacity);
 			}
 		</script>
-		<!-- vertex shader -->
+
+
 		<script  id="color-vertex-shader" type="x-shader/x-vertex">
 			attribute vec4 a_position;
 
@@ -372,7 +229,6 @@
 				gl_Position = u_projection * u_view * u_world * a_position;
 			}
 		</script>
-		<!-- fragment shader -->
 		<script  id="color-fragment-shader" type="x-shader/x-fragment">
 			precision mediump float;
 
@@ -381,8 +237,6 @@
 				gl_FragColor = u_color;
 			}
 		</script>
-
-
 
 
 	</head>
@@ -404,20 +258,6 @@
 				</div>
 				<br>
 
-
-
-			</div>
-
-			<div class="menu column2">
-				<details>
-					<summary class="title">
-						Settings
-					</summary>
-					<div id ="gui">
-					</div>
-
-				</details>
-
 			</div>
 
 			<div class="menu column2">
@@ -427,17 +267,25 @@
 							Camera
 						</summary>
 
-						<button class="btn" onmouseup="scene.keys['w']=false;" onmousedown="scene.keys['w']=true;">
-							Forward
-						</button>
-
-						<button class="btn" onmouseup="scene.keys['s']=false;" onmousedown="scene.keys['s']=true;">
-							Backward
-						</button>
-
 						<button class="btn" onmouseup="scene.switch_camera();">
 							Switch Camera
 						</button>
+
+						<button class="btn" onmouseup="scene.camera.align();">
+							Align
+						</button>
+
+						<details>
+							<summary class="title">
+								Touch
+							</summary>
+							<div>
+								<canvas id="canvas2d" style="width: 190px; height: 95px "></canvas>
+							</div>
+
+							Touch the canvas to rotate the camera.
+
+						</details>
 
 						<details>
 							<summary class="title">
@@ -452,25 +300,28 @@
 								<b>Arrow UP/DOWN</b> : tilt movement<br>
 								<b>Arrow LEFT/RIGHT</b> : pan movement <br>
 								<b>R : realign camera</b>
-
-
 							</p>
 
 						</details>
 
-						<details>
-							<summary class="title">
-								Touch
-							</summary>
-							<div>
-								<canvas id="canvas2d" style="max-width: 190px; max-height:150px;"></canvas>
-							</div>
-
-						</details>
 					</details>
 
 				</div>
 			</div>
+
+			<div class="menu column2">
+				<details>
+					<summary class="title">
+						Settings
+					</summary>
+					<div id ="gui">
+					</div>
+
+				</details>
+
+			</div>
+
+
 
 
 

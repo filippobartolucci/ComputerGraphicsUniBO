@@ -255,36 +255,34 @@ che lo compongono sono i seguenti:</p>
 gestisce tutte le altre.</li>
 <li><strong>camera.js:</strong> classe che si occupa di gestire la
 camera e i suoi movimenti nello spazio</li>
-<li><strong>animated_camera.js:</strong> camera 3D che si muove
-automaticamente.</li>
-<li><strong>mesh_obj:</strong> classe per la gestione degli oggetti da
-disegnare.</li>
+<li><strong>animated_camera.js:</strong> camera 3D che si muove in
+automatico lungo un arco di circonferenza</li>
+<li><strong>mesh_obj:</strong> classe per la gestione delle mesh</li>
 <li><strong>main.js:</strong> entry point del programma.</li>
 <li><strong>utils.js:</strong> file che contiene funzioni di
 supporto.</li>
 </ul>
 <h2 id="interfaccia">Interfaccia</h2>
-<p><img src="interfaccia.png"
-title="Interfaccia dell&#39;applicazione" /> L’interfaccia
-dell’applicazione di presenta in due elementi, il canvas per il disegno
-e una colonna con controlli e impostazioni.</p>
+<p><img src="interfaccia.png" /> L’interfaccia dell’applicazione di
+presenta in due elementi, il canvas per il disegno e una colonna con
+controlli e impostazioni.</p>
 <p>Il menù per le impostazioni del progetto è stato realizzato
-utilizzando <a href="https://github.com/dataarts/dat.gui">dat.GUI</a>
-.</p>
+utilizzando dat.GUI .</p>
 <p>Il movimento nella scena può essere gestito attraverso una tastiera
 oppure tramite touch.</p>
-<p><img src="controlli.png"  width=50% height=50% style="display: block; margin-left: auto; margin-right: auto;"></p>
-<p>I tasti per controllare il movimento sono visibili espandendo il menù
-laterale, mentre il per il touch è stato inserito un canvas 2D con
-disegnati alcuni pulsanti che permettono di muoversi.</p>
+<p><img src="controlli.png" /> I tasti per controllare il movimento sono
+visibili espandendo il menù laterale, mentre il per il touch è stato
+inserito un canvas 2D con disegnati alcuni pulsanti che permettono di
+muoversi.</p>
 <p>È anche possibile trascinare, con mouse o tocco, sul canvas per
 ruotare la camera nella varie direzioni.</p>
-<p><img src="mouse_drag.gif"  width=70% style="display: block; margin-left: auto; margin-right: auto;"></p>
+<p><img src="mouse_drag.gif" /></p>
 <p><a href="#indice">Torna all’indice</a></p>
 <hr />
 <h1 id="scene.js">scene.js</h1>
 <p>Rappresenta la classe principale che si occupa di tutte le
-operazioni, dalla inizializzazione di canvas e mesh al rendering.</p>
+operazioni, dalla inizializzazione del canvas e delle mesh al
+rendering.</p>
 <p>Quando viene creato un nuovo oggetto scena vengono eseguite le
 seguenti operazioni:</p>
 <ul>
@@ -301,11 +299,11 @@ scena.</li>
 <strong>light</strong> (oggetto luce di scena)</li>
 </ul>
 <p>L’utilizzo di una classe che contiene tutte le principali variabili
-da utilizzare ha permesso di ridurre e semplificare il codice da
-scrivere, potendo usare le stesse variabili da passare alle mesh, senza
+da utilizzare mi ha permesso di ridurre e semplificare il codice da
+scrivere e poter usare le stesse variabili da passare alle mesh, senza
 dover ricalcolare le stesse cose più volte.</p>
 <p>Le mesh da visualizzare sono salvate in file json caricato all’avvio.
-Così facendo posso creare scene diverse semplicemente utilizzando file
+Così facendo posso creare scene diverse semplicemente creando più file
 json diversi.</p>
 <p>Di seguito viene riportato un esempio di come è scritto un oggetto
 mesh in una scena:</p>
@@ -330,8 +328,6 @@ mesh.</li>
 <p>I valori in <strong>position</strong> vengono sommati alle coordinate
 della geometria dell’oggetto, traslandolo così nella posizione
 desiderata.</p>
-<p>Nella cartella <code>project/scene</code> sono salvate due diverse
-scene, <code>scene1.json</code> e <code>scene2.json</code>.</p>
 <h2 id="metodi">Metodi</h2>
 <h3 id="async-load_mesh_jsonjson_path">async
 load_mesh_json(json_path)</h3>
@@ -389,11 +385,6 @@ meno lo skybox.</li>
 <p>Per il render è stato attivato <code>gl.BLEND</code> quindi, se un
 materiale di un oggetto ha opacità minore di uno, questo verrà disegnato
 con una trasparenza.</p>
-<figure>
-<img src="trasparenza.png" title="Oggetto con trasparenza"
-alt="Esempio di trasparenza" />
-<figcaption aria-hidden="true">Esempio di trasparenza</figcaption>
-</figure>
 <h3 id="rendering-base">Rendering base</h3>
 <p>La scene disegnata con il rendering base ha queste
 caratteristiche:</p>
@@ -415,7 +406,7 @@ dal punto di vista della luce per generare una shadowmap, poi dal punto
 di vista dell’osservatore utilizzando la shadowmap generata per capire
 se un punto è in ombra o meno.</p>
 <figure>
-<img src="ombre.png" title="Stessa scena disegnata con le ombre"
+<img src="ombre.png" title="Stessa scena disegnata con le obre"
 alt="Rendering con ombre" />
 <figcaption aria-hidden="true">Rendering con ombre</figcaption>
 </figure>
@@ -507,10 +498,6 @@ contenente tutte le impostazioni come:</p>
 <li>path per il file .mtl</li>
 <li>posizione dell’ oggetto rispetto all’origine</li>
 </ul>
-<p>Gli oggetti sono salvati nella cartella <code>project/data</code> e
-sono stati tutti disegnati su Blender e poi esportati nel formato
-<code>.obj</code>. I file originali <code>.blend</code> sono salvati
-insieme ai <code>.obj</code></p>
 <h2 id="metodi-2">Metodi</h2>
 <h3 id="prepare_meshgl">prepare_mesh(gl)</h3>
 <p>Funzione chiamata dal costruttore dopo che viene letto il file obj.
@@ -522,7 +509,7 @@ uniforms)</h3>
 <p>Funzione che disegna l’oggetto utilizzando il programma e le uniform
 specificate nei parametri. Viene chiamata dalla funzione render che si
 occupa di scegliere programInfo e uniform a seconda del tipo di
-rendering scelto. Avendo program e uniforms parametrizzati la funzione
+rendering scelto. Avendo program e uniforms parametrizzato la funzione
 di rendering è unica per tutti le modalità di disegno.</p>
 <p><a href="#indice">Torna all’indice</a></p>
 <hr />
