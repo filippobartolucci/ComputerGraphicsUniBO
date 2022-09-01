@@ -7,13 +7,13 @@ Sviluppare una "3D-WebApp" usando WebGL (HTML5, CSS e contesto webgl), linguaggi
 Si progetti ed implementi un'applicazione 3D interattiva composta da almeno un oggetto principale di tipo mesh poligonale caricato da file (formato OBJ Wavefront). Si definisca un'opportuna scenografia colorando/illuminando e texturando gli oggetti della scena.
 
 ## Richieste grafiche obbligatorie
-- [ ] geometria 3D visualizzata in proiezione prospettica;
-- [ ] input utente (si gestisca l'interazione 3D usando sia la tastiera che il mouse e opzionalmente un gamepad);
-- [ ] illuminazione e sfumatura (gli oggetti 3D devono essere illuminati da almeno una luce);
-- [ ] texture mapping (almeno due oggetti 3D devono avere una texture applicata e almeno una deve essere una foto dell'autore)
-- [ ] pannello di controllo su schermo (si preveda un pannello di controllo in cui usando testo e grafica 2D si visualizzino le funzioni utente, ecc.);
-- [ ] si ponga attenzione che il tutto sia fruibile anche da un dispositivo mobile (gestione eventi touch);
-- [ ] (opzionale) advanced rendering (da menu' si preveda l'attivazione/disattivazione di almeno una tecnica di resa avanzata come per esempio: ombre, trasparenze, riflessioni, bump-mapping, ecc.)
+- [x] geometria 3D visualizzata in proiezione prospettica;
+- [x] input utente (si gestisca l'interazione 3D usando sia la tastiera che il mouse e opzionalmente un gamepad);
+- [x] illuminazione e sfumatura (gli oggetti 3D devono essere illuminati da almeno una luce);
+- [x] texture mapping (almeno due oggetti 3D devono avere una texture applicata e almeno una deve essere una foto dell'autore)
+- [x] pannello di controllo su schermo (si preveda un pannello di controllo in cui usando testo e grafica 2D si visualizzino le funzioni utente, ecc.);
+- [x] si ponga attenzione che il tutto sia fruibile anche da un dispositivo mobile (gestione eventi touch);
+- [x] (opzionale) advanced rendering (da menu' si preveda l'attivazione/disattivazione di almeno una tecnica di resa avanzata come per esempio: ombre, trasparenze, riflessioni, bump-mapping, ecc.)
 
 ## Librerie utilizzabili
 Non si possono usare librerie diverse da quelle messe a disposizione durante il corso mentre si raccomanda di utilizzare tutto quello che e' stato messo a disposizione:
